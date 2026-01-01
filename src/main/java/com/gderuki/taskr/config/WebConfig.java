@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import static com.gderuki.taskr.config.ApiConstants.API_PATH_PATTERN;
+
 /**
  * Web MVC configuration for the application.
  * Registers interceptors and configures web-related settings.
@@ -14,8 +16,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
-
-    private static final String API_PATH_PATTERN = "/api/**";
 
     private final LoggingInterceptor loggingInterceptor;
 

@@ -6,6 +6,7 @@ import com.gderuki.taskr.entity.Task;
 import com.gderuki.taskr.exception.TaskNotFoundException;
 import com.gderuki.taskr.mapper.TaskMapper;
 import com.gderuki.taskr.repository.TaskRepository;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ public class TaskService {
      * Create a new task
      */
     @Transactional
+    @Timed(value = "taskr.task.create", description = "Time taken to create a task")
     public TaskResponseDTO createTask(TaskRequestDTO taskRequestDTO) {
         log.info("Creating new task with title: {}", taskRequestDTO.getTitle());
 
@@ -41,6 +43,7 @@ public class TaskService {
      * Get all active (non-deleted) tasks with pagination and sorting
      */
     @Transactional(readOnly = true)
+    @Timed(value = "taskr.task.getAll", description = "Time taken to fetch all tasks")
     public Page<TaskResponseDTO> getAllTasks(Pageable pageable) {
         log.info("Fetching all tasks with pagination: page={}, size={}",
                 pageable.getPageNumber(), pageable.getPageSize());
@@ -53,6 +56,7 @@ public class TaskService {
      * Get a task by ID
      */
     @Transactional(readOnly = true)
+    @Timed(value = "taskr.task.getById", description = "Time taken to fetch a task by ID")
     public TaskResponseDTO getTaskById(Long id) {
         log.info("Fetching task with id: {}", id);
 
@@ -66,6 +70,7 @@ public class TaskService {
      * Update an existing task
      */
     @Transactional
+    @Timed(value = "taskr.task.update", description = "Time taken to update a task")
     public TaskResponseDTO updateTask(Long id, TaskRequestDTO taskRequestDTO) {
         log.info("Updating task with id: {}", id);
 
@@ -83,6 +88,7 @@ public class TaskService {
      * Soft delete a task (sets deletedAt timestamp)
      */
     @Transactional
+    @Timed(value = "taskr.task.delete", description = "Time taken to delete a task")
     public void deleteTask(Long id) {
         log.info("Soft deleting task with id: {}", id);
 

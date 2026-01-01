@@ -12,11 +12,49 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - taskr-network
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d taskr_db"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: taskr-app
+    environment:
+      SPRING_PROFILE: ${SPRING_PROFILE:-prod}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      APP_USERNAME: ${APP_USERNAME}
+      APP_PASSWORD: ${APP_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taskr_db
+      ALLOWED_ORIGIN: ${ALLOWED_ORIGIN:-http://localhost:3000}
+      JAVA_TOOL_OPTIONS: ${JAVA_DEBUG_OPTS:--agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005}
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    networks:
+      - taskr-network
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health/liveness"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  taskr-network:
+    driver: bridge
 
 volumes:
   postgres_data:

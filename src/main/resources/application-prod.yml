@@ -1,0 +1,119 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://prod-db-host:5432/taskr_prod}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        use_sql_comments: false
+        highlight_sql: false
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: false
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    out-of-order: false
+  web:
+    error:
+      include-message: never
+      include-binding-errors: never
+      include-stacktrace: never
+
+logging:
+  level:
+    root: WARN
+    com.taskr: INFO
+    org.springframework.web: WARN
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+    org.flywaydb: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: /var/log/taskr/application.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
+      total-size-cap: 1GB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: when-authorized
+      probes:
+        enabled: true
+  health:
+    defaults:
+      enabled: false
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: production
+  info:
+    env:
+      enabled: false
+    java:
+      enabled: true
+    os:
+      enabled: false
+
+server:
+  port: ${SERVER_PORT:8080}
+  compression:
+    enabled: true
+  http2:
+    enabled: true
+
+app:
+  security:
+    username: ${APP_USERNAME}
+    password: ${APP_PASSWORD}
+  
+  cors:
+    allowed-origins:
+      - ${ALLOWED_ORIGIN}
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+    allowed-headers:
+      - Content-Type
+      - Authorization
+      - X-Correlation-Id
+    exposed-headers:
+      - X-Correlation-Id
+    allow-credentials: true
+    max-age: 7200

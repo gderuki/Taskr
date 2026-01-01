@@ -1,0 +1,53 @@
+# Build output
+target/
+build/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# IDE files
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache
+.factorypath
+.apt_generated
+nbproject/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Environment and sensitive files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Documentation
+README.md
+HELP.md
+*.md
+
+# Docker files
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Maven wrapper jar (excluded from git but not needed in Docker)
+.mvn/wrapper/maven-wrapper.jar
+
+# Test reports and coverage
+**/test-results/
+**/coverage/

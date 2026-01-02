@@ -7,7 +7,7 @@
 DELETE FROM users WHERE username = 'testuser';
 
 -- Insert test user
--- The password 'password123' is hashed using BCrypt
+-- The password 'password' is hashed using BCrypt
 INSERT INTO users (username, email, password, enabled, created_at, updated_at)
 VALUES (
     'testuser',

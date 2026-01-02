@@ -1,6 +1,6 @@
 # Taskr - Task Management Service
 
-A Spring Boot REST API for task management with CRUD operations, soft delete, pagination, and basic authentication.
+A Spring Boot REST API for task management with CRUD operations, soft delete, pagination, and JWT authentication.
 
 ## Features
 
@@ -9,17 +9,18 @@ A Spring Boot REST API for task management with CRUD operations, soft delete, pa
 - ✅ Pagination and sorting
 - ✅ Input validation
 - ✅ Global error handling
-- ✅ Basic authentication
+- ✅ JWT authentication with refresh tokens
 - ✅ PostgreSQL database with Flyway migrations
 - ✅ DTO pattern with MapStruct
 - ✅ Docker support
 
 ## Technologies
 
-- **Java 17**
+- **Java 21**
 - **Spring Boot 4.0.1**
 - **Spring Data JPA**
 - **Spring Security**
+- **JWT (jjwt 0.12.6)**
 - **PostgreSQL 16**
 - **Flyway**
 - **MapStruct 1.6.3**
@@ -29,7 +30,7 @@ A Spring Boot REST API for task management with CRUD operations, soft delete, pa
 
 ## Prerequisites
 
-- Java 17
+- Java 21
 - Docker & Docker Compose
 - Maven 3.x
 
@@ -57,17 +58,65 @@ The application will start on `http://localhost:8080`
 
 ### 3. Authentication
 
-The API uses Basic Authentication with default credentials:
-- **Username**: `${APP_USERNAME}`
-- **Password**: `${APP_PASSWORD}`
+The API uses JWT authentication. First, obtain an access token by logging in.
 
 ## API Endpoints
 
-### Create a Task
+### Authentication
+
+#### Login
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "password"
+}
+```
+
+Response:
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
+  "refreshToken": "550e8400-e29b-41d4-a716-446655440000",
+  "tokenType": "Bearer",
+  "expiresIn": 900
+}
+```
+
+#### Refresh Token
+```http
+POST /api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+#### Logout
+```http
+POST /api/auth/logout
+Content-Type: application/json
+
+{
+  "refreshToken": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+### Task Management
+
+All task endpoints require authentication with Bearer token:
+```
+Authorization: Bearer <accessToken>
+```
+
+#### Create a Task
 ```http
 POST /api/tasks
 Content-Type: application/json
-Authorization: Basic ${APP_USERNAME}:${APP_PASSWORD}
+Authorization: Bearer <accessToken>
 
 {
   "title": "Complete project documentation",
@@ -76,23 +125,23 @@ Authorization: Basic ${APP_USERNAME}:${APP_PASSWORD}
 }
 ```
 
-### Get All Tasks (with pagination)
+#### Get All Tasks (with pagination)
 ```http
 GET /api/tasks?page=0&size=10&sortBy=createdAt&direction=DESC
-Authorization: Basic ${APP_USERNAME}:${APP_PASSWORD}
+Authorization: Bearer <accessToken>
 ```
 
-### Get Task by ID
+#### Get Task by ID
 ```http
 GET /api/tasks/{id}
-Authorization: Basic ${APP_USERNAME}:${APP_PASSWORD}
+Authorization: Bearer <accessToken>
 ```
 
-### Update Task
+#### Update Task
 ```http
 PUT /api/tasks/{id}
 Content-Type: application/json
-Authorization: Basic ${APP_USERNAME}:${APP_PASSWORD}
+Authorization: Bearer <accessToken>
 
 {
   "title": "Updated title",
@@ -101,10 +150,10 @@ Authorization: Basic ${APP_USERNAME}:${APP_PASSWORD}
 }
 ```
 
-### Delete Task (Soft Delete)
+#### Delete Task (Soft Delete)
 ```http
 DELETE /api/tasks/{id}
-Authorization: Basic ${APP_USERNAME}:${APP_PASSWORD}
+Authorization: Bearer <accessToken>
 ```
 
 ## Task Status Values
@@ -113,22 +162,30 @@ Authorization: Basic ${APP_USERNAME}:${APP_PASSWORD}
 - `IN_PROGRESS` - Task in progress
 - `DONE` - Task completed
 
+## Authentication Details
+
+- **Access Token**: JWT token valid for 15 minutes
+- **Refresh Token**: UUID token valid for 24 hours, stored in database
+- **Token Type**: Bearer
+- **Security**: Stateless JWT with BCrypt password hashing
+
 ## Project Structure
 
 ```
 src/main/java/com/gderuki/taskr/
-├── config/              # Security configuration
-├── controller/          # REST controllers
+├── config/              # Security and application configuration
+├── controller/          # REST controllers (Auth, Task)
 ├── dto/                 # Data Transfer Objects
-├── entity/              # JPA entities
+├── entity/              # JPA entities (Task, User, RefreshToken)
 ├── exception/           # Custom exceptions and global handler
 ├── mapper/              # MapStruct mappers
 ├── repository/          # JPA repositories
+├── security/            # JWT utilities and filters
 └── service/             # Business logic
 
 src/main/resources/
 ├── db/migration/        # Flyway SQL migrations
-└── application.properties
+└── application.yml
 ```
 
 ## Database Schema
@@ -142,37 +199,18 @@ src/main/resources/
 - `updated_at` (TIMESTAMP) - Last update timestamp
 - `deleted_at` (TIMESTAMP) - Soft delete timestamp
 
-## Docker Support
+**users** table:
+- `id` (BIGSERIAL) - Primary key
+- `username` (VARCHAR(100)) - Unique username
+- `email` (VARCHAR(255)) - Unique email
+- `password` (VARCHAR(255)) - BCrypt hashed password
+- `enabled` (BOOLEAN) - Account status
+- `created_at` (TIMESTAMP) - Creation timestamp
+- `updated_at` (TIMESTAMP) - Last update timestamp
 
-### Build Docker Image
-```bash
-docker build -t taskr:latest .
-```
-
-### Run with Docker Compose
-You can add the Spring Boot service to `docker-compose.yml` to run everything together.
-
-## Learning Points
-
-This project demonstrates:
-- **Layered Architecture**: Clear separation between Controller, Service, and Repository
-- **DTO Pattern**: Never expose entities directly in REST API
-- **Soft Delete**: Logical deletion with timestamp
-- **Pagination**: Efficient handling of large datasets
-- **MapStruct**: Compile-time DTO mapping
-- **Flyway**: Version-controlled database migrations
-- **Spring Security**: Basic authentication
-- **Global Exception Handling**: Consistent error responses
-- **Bean Validation**: Input validation with annotations
-- **Docker**: Containerization for easy deployment
-
-## Next Steps
-
-Potential enhancements:
-- JWT authentication
-- Unit and integration tests
-- API documentation with Swagger/OpenAPI
-- Audit logging
-- Search and filtering capabilities
-- Task assignment to users
-- CI/CD pipeline
+**refresh_tokens** table:
+- `id` (BIGSERIAL) - Primary key
+- `token` (VARCHAR(255)) - Unique refresh token UUID
+- `user_id` (BIGINT) - Foreign key to users table
+- `expiry_date` (TIMESTAMP) - Token expiration date
+- `created_at` (TIMESTAMP) - Creation timestamp

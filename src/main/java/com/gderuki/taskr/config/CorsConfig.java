@@ -1,7 +1,7 @@
 package com.gderuki.taskr.config;
 
 import lombok.Getter;
-import lombok.NonNull;
+import org.jspecify.annotations.NonNull;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +10,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
-import static com.gderuki.taskr.config.ApiConstants.API_PATH_PATTERN;
 
 /**
  * CORS configuration for frontend integration.
@@ -55,7 +54,7 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
-        registry.addMapping(API_PATH_PATTERN)
+        registry.addMapping(ApiConstants.Patterns.API_ALL)
                 .allowedOrigins(allowedOrigins.toArray(String[]::new))
                 .allowedMethods(allowedMethods.toArray(String[]::new))
                 .allowedHeaders(allowedHeaders.toArray(String[]::new))

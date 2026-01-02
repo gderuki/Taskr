@@ -72,10 +72,6 @@ management:
       enabled: true
 
 app:
-  security:
-    username: ${APP_USERNAME:admin}
-    password: ${APP_PASSWORD:admin}
-  
   cors:
     allowed-origins:
       - http://localhost:3000

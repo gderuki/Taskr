@@ -1,5 +1,6 @@
 package com.gderuki.taskr.controller;
 
+import com.gderuki.taskr.config.ApiConstants;
 import com.gderuki.taskr.dto.TaskRequestDTO;
 import com.gderuki.taskr.dto.TaskResponseDTO;
 import com.gderuki.taskr.service.TaskService;
@@ -14,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping(ApiConstants.Tasks.BASE)
 @RequiredArgsConstructor
 public class TaskController {
 

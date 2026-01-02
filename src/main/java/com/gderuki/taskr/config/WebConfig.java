@@ -1,7 +1,7 @@
 package com.gderuki.taskr.config;
 
 import com.gderuki.taskr.interceptor.LoggingInterceptor;
-import lombok.NonNull;
+import org.jspecify.annotations.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

@@ -67,11 +67,12 @@ info:
     java:
       version: @java.version@
 
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:900000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:86400000}
+
 app:
-  security:
-    username: ${APP_USERNAME}
-    password: ${APP_PASSWORD}
-  
   cors:
     allowed-origins:
       - http://localhost:3000

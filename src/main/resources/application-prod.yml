@@ -96,10 +96,6 @@ server:
     enabled: true
 
 app:
-  security:
-    username: ${APP_USERNAME}
-    password: ${APP_PASSWORD}
-  
   cors:
     allowed-origins:
       - ${ALLOWED_ORIGIN}

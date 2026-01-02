@@ -16,29 +16,39 @@ public final class ApiConstants {
     public static final String API_BASE = "/api/" + API_VERSION;
 
     /**
-     * Authentication path.
+     * Authentication API constants.
      */
-    public static final String AUTH_PATH = API_BASE + "/auth";
+    public static final class Auth {
+        public static final String BASE = API_BASE + "/auth";
+
+        private Auth() {
+            throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+        }
+    }
 
     /**
-     * Tasks path.
+     * Tasks API constants.
      */
-    public static final String TASKS_PATH = API_BASE + "/tasks";
+    public static final class Tasks {
+        public static final String BASE = API_BASE + "/tasks";
+
+        private Tasks() {
+            throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+        }
+    }
 
     /**
-     * Base path pattern for all API endpoints.
+     * Security path patterns for configuration.
      */
-    public static final String API_PATH_PATTERN = "/api/**";
+    public static final class Patterns {
+        public static final String API_ALL = "/api/**";
+        public static final String AUTH_ALL = "/api/*/auth/**";
+        public static final String ACTUATOR_ALL = "/actuator/**";
 
-    /**
-     * Path pattern for authentication endpoints.
-     */
-    public static final String AUTH_PATH_PATTERN = "/api/*/auth/**";
-
-    /**
-     * Path pattern for actuator endpoints.
-     */
-    public static final String ACTUATOR_PATH_PATTERN = "/actuator/**";
+        private Patterns() {
+            throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+        }
+    }
 
     private ApiConstants() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

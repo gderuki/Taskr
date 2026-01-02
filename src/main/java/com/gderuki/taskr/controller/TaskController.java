@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(ApiConstants.TASKS_PATH)
+@RequestMapping(ApiConstants.Tasks.BASE)
 @RequiredArgsConstructor
 public class TaskController {
 

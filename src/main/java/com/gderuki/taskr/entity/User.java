@@ -23,13 +23,14 @@ public class User {
     @Column(nullable = false, unique = true, length = 100)
     private String username;
 
-    @Column(nullable = false, unique = true, length = 255)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean enabled = true;
 
     @Column(name = "created_at", nullable = false, updatable = false)

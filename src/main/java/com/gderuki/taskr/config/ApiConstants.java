@@ -44,6 +44,10 @@ public final class ApiConstants {
         public static final String API_ALL = "/api/**";
         public static final String AUTH_ALL = "/api/*/auth/**";
         public static final String ACTUATOR_ALL = "/actuator/**";
+        public static final String SWAGGER_UI = "/swagger-ui/**";
+        public static final String SWAGGER_UI_HTML = "/swagger-ui.html";
+        public static final String API_DOCS = "/api-docs/**";
+        public static final String V3_API_DOCS = "/v3/api-docs/**";
 
         private Patterns() {
             throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

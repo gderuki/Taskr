@@ -36,6 +36,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(ApiConstants.Patterns.AUTH_ALL).permitAll()
                         .requestMatchers(ApiConstants.Patterns.ACTUATOR_ALL).permitAll()
+                        .requestMatchers(ApiConstants.Patterns.SWAGGER_UI).permitAll()
+                        .requestMatchers(ApiConstants.Patterns.SWAGGER_UI_HTML).permitAll()
+                        .requestMatchers(ApiConstants.Patterns.API_DOCS).permitAll()
+                        .requestMatchers(ApiConstants.Patterns.V3_API_DOCS).permitAll()
                         .requestMatchers(ApiConstants.Patterns.API_ALL).authenticated()
                         .anyRequest().permitAll()
                 )

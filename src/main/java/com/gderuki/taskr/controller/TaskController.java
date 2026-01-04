@@ -3,6 +3,9 @@ package com.gderuki.taskr.controller;
 import com.gderuki.taskr.config.ApiConstants;
 import com.gderuki.taskr.dto.TaskRequestDTO;
 import com.gderuki.taskr.dto.TaskResponseDTO;
+import com.gderuki.taskr.dto.TaskSearchCriteria;
+import com.gderuki.taskr.entity.TaskPriority;
+import com.gderuki.taskr.entity.TaskStatus;
 import com.gderuki.taskr.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,6 +25,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping(ApiConstants.Tasks.BASE)
@@ -50,8 +56,10 @@ public class TaskController {
                                               "title": "Complete project documentation",
                                               "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
                                               "status": "TODO",
+                                              "priority": "MEDIUM",
                                               "createdAt": "2026-01-03T10:15:30",
-                                              "updatedAt": "2026-01-03T10:15:30"
+                                              "updatedAt": "2026-01-03T10:15:30",
+                                              "dueDate": "2031-01-15T17:00:00"
                                             }
                                             """
                             )
@@ -81,7 +89,9 @@ public class TaskController {
                                             {
                                               "title": "Complete project documentation",
                                               "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
-                                              "status": "TODO"
+                                              "status": "TODO",
+                                              "priority": "MEDIUM",
+                                              "dueDate": "2031-01-15T17:00:00"
                                             }
                                             """
                             )
@@ -111,16 +121,20 @@ public class TaskController {
                                                   "title": "Complete project documentation",
                                                   "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
                                                   "status": "TODO",
+                                                  "priority": "MEDIUM",
                                                   "createdAt": "2026-01-03T10:15:30",
-                                                  "updatedAt": "2026-01-03T10:15:30"
+                                                  "updatedAt": "2026-01-03T10:15:30",
+                                                  "dueDate": "2031-01-15T17:00:00"
                                                 },
                                                 {
                                                   "id": 2,
                                                   "title": "Fix authentication bug",
                                                   "description": "Resolve JWT token refresh issue",
                                                   "status": "IN_PROGRESS",
+                                                  "priority": "HIGH",
                                                   "createdAt": "2026-01-03T09:00:00",
-                                                  "updatedAt": "2026-01-03T09:30:00"
+                                                  "updatedAt": "2026-01-03T09:30:00",
+                                                  "dueDate": "2026-01-05T12:00:00"
                                                 }
                                               ],
                                               "pageable": {
@@ -175,8 +189,10 @@ public class TaskController {
                                               "title": "Complete project documentation",
                                               "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
                                               "status": "TODO",
+                                              "priority": "MEDIUM",
                                               "createdAt": "2026-01-03T10:15:30",
-                                              "updatedAt": "2026-01-03T10:15:30"
+                                              "updatedAt": "2026-01-03T10:15:30",
+                                              "dueDate": "2031-01-15T17:00:00"
                                             }
                                             """
                             )
@@ -219,8 +235,10 @@ public class TaskController {
                                               "title": "Complete project documentation",
                                               "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
                                               "status": "IN_PROGRESS",
+                                              "priority": "MEDIUM",
                                               "createdAt": "2026-01-03T10:15:30",
-                                              "updatedAt": "2026-01-03T11:20:00"
+                                              "updatedAt": "2026-01-03T11:20:00",
+                                              "dueDate": "2031-01-15T17:00:00"
                                             }
                                             """
                             )
@@ -257,7 +275,9 @@ public class TaskController {
                                             {
                                               "title": "Complete project documentation",
                                               "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
-                                              "status": "IN_PROGRESS"
+                                              "status": "IN_PROGRESS",
+                                              "priority": "MEDIUM",
+                                              "dueDate": "2031-01-15T17:00:00"
                                             }
                                             """
                             )
@@ -295,5 +315,236 @@ public class TaskController {
             @PathVariable Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Assign a task to a user",
+            description = "Assigns a task to a specific user by user ID. Requires authentication."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Task assigned successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TaskResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Task or user not found",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - JWT token missing or invalid",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @PutMapping("/{taskId}/assign/{userId}")
+    public ResponseEntity<TaskResponseDTO> assignTask(
+            @Parameter(description = "Task ID", example = "1", required = true)
+            @PathVariable Long taskId,
+            @Parameter(description = "User ID to assign", example = "1", required = true)
+            @PathVariable Long userId) {
+        TaskResponseDTO task = taskService.assignTask(taskId, userId);
+        return ResponseEntity.ok(task);
+    }
+
+    @Operation(
+            summary = "Unassign a task",
+            description = "Removes the assignee from a task. Requires authentication."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Task unassigned successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TaskResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Task not found",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - JWT token missing or invalid",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @PutMapping("/{taskId}/unassign")
+    public ResponseEntity<TaskResponseDTO> unassignTask(
+            @Parameter(description = "Task ID", example = "1", required = true)
+            @PathVariable Long taskId) {
+        TaskResponseDTO task = taskService.unassignTask(taskId);
+        return ResponseEntity.ok(task);
+    }
+
+    @Operation(
+            summary = "Search and filter tasks",
+            description = "Search tasks by multiple criteria including keyword, status, priority, assignee, due date, and more. Supports pagination and sorting. Requires authentication."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Tasks retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "content": [
+                                                {
+                                                  "id": 1,
+                                                  "title": "Complete project documentation",
+                                                  "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
+                                                  "status": "TODO",
+                                                  "priority": "HIGH",
+                                                  "createdAt": "2026-01-03T10:15:30",
+                                                  "updatedAt": "2026-01-03T10:15:30",
+                                                  "dueDate": "2026-01-15T17:00:00"
+                                                }
+                                              ],
+                                              "pageable": {
+                                                "pageNumber": 0,
+                                                "pageSize": 10
+                                              },
+                                              "totalElements": 1,
+                                              "totalPages": 1
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - JWT token missing or invalid",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @GetMapping("/search")
+    public ResponseEntity<Page<TaskResponseDTO>> searchTasks(
+            @Parameter(description = "Search keyword in title or description", example = "documentation")
+            @RequestParam(required = false) String keyword,
+            @Parameter(description = "Filter by task status", example = "TODO")
+            @RequestParam(required = false) TaskStatus status,
+            @Parameter(description = "Filter by task priority", example = "HIGH")
+            @RequestParam(required = false) TaskPriority priority,
+            @Parameter(description = "Filter by assignee user ID", example = "1")
+            @RequestParam(required = false) Long assigneeId,
+            @Parameter(description = "Filter tasks with due date after this timestamp", example = "2026-01-01T00:00:00")
+            @RequestParam(required = false) LocalDateTime dueDateFrom,
+            @Parameter(description = "Filter tasks with due date before this timestamp", example = "2026-12-31T23:59:59")
+            @RequestParam(required = false) LocalDateTime dueDateTo,
+            @Parameter(description = "Filter tasks created after this timestamp", example = "2026-01-01T00:00:00")
+            @RequestParam(required = false) LocalDateTime createdAfter,
+            @Parameter(description = "Filter tasks created before this timestamp", example = "2026-12-31T23:59:59")
+            @RequestParam(required = false) LocalDateTime createdBefore,
+            @Parameter(description = "Include only unassigned tasks", example = "false")
+            @RequestParam(required = false) Boolean unassignedOnly,
+            @Parameter(description = "Include only overdue tasks", example = "false")
+            @RequestParam(required = false) Boolean overdueOnly,
+            @Parameter(description = "Filter by tag IDs (tasks must have ALL specified tags)", example = "1,2")
+            @RequestParam(required = false) List<Long> tagIds,
+            @Parameter(description = "Filter by tag IDs (tasks must have ANY of specified tags)", example = "1,2")
+            @RequestParam(required = false) List<Long> anyTagIds,
+            @Parameter(description = "Page number (0-indexed)", example = "0")
+            @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Number of items per page", example = "10")
+            @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Field to sort by", example = "createdAt")
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @Parameter(description = "Sort direction (ASC or DESC)", example = "DESC")
+            @RequestParam(defaultValue = "DESC") Sort.Direction direction) {
+
+        TaskSearchCriteria criteria = TaskSearchCriteria.builder()
+                .keyword(keyword)
+                .status(status)
+                .priority(priority)
+                .assigneeId(assigneeId)
+                .dueDateFrom(dueDateFrom)
+                .dueDateTo(dueDateTo)
+                .createdAfter(createdAfter)
+                .createdBefore(createdBefore)
+                .unassignedOnly(unassignedOnly)
+                .overdueOnly(overdueOnly)
+                .tagIds(tagIds)
+                .anyTagIds(anyTagIds)
+                .build();
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Page<TaskResponseDTO> tasks = taskService.searchTasks(criteria, pageable);
+        return ResponseEntity.ok(tasks);
+    }
+
+    @Operation(
+            summary = "Add tag to task",
+            description = "Adds a tag to a task. Requires authentication."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Tag added successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TaskResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Task or tag not found",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - JWT token missing or invalid",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @PostMapping("/{taskId}/tags/{tagId}")
+    public ResponseEntity<TaskResponseDTO> addTagToTask(
+            @Parameter(description = "Task ID", example = "1", required = true)
+            @PathVariable Long taskId,
+            @Parameter(description = "Tag ID to add", example = "1", required = true)
+            @PathVariable Long tagId) {
+        TaskResponseDTO task = taskService.addTagToTask(taskId, tagId);
+        return ResponseEntity.ok(task);
+    }
+
+    @Operation(
+            summary = "Remove tag from task",
+            description = "Removes a tag from a task. Requires authentication."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Tag removed successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TaskResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Task not found",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - JWT token missing or invalid",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @DeleteMapping("/{taskId}/tags/{tagId}")
+    public ResponseEntity<TaskResponseDTO> removeTagFromTask(
+            @Parameter(description = "Task ID", example = "1", required = true)
+            @PathVariable Long taskId,
+            @Parameter(description = "Tag ID to remove", example = "1", required = true)
+            @PathVariable Long tagId) {
+        TaskResponseDTO task = taskService.removeTagFromTask(taskId, tagId);
+        return ResponseEntity.ok(task);
     }
 }

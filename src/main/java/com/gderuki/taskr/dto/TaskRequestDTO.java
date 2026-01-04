@@ -1,5 +1,6 @@
 package com.gderuki.taskr.dto;
 
+import com.gderuki.taskr.entity.TaskPriority;
 import com.gderuki.taskr.entity.TaskStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +10,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -29,4 +33,17 @@ public class TaskRequestDTO {
     @Schema(description = "Task status", example = "TODO", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = {"TODO", "IN_PROGRESS", "DONE"})
     @NotNull(message = "Status is required")
     private TaskStatus status;
+
+    @Schema(description = "Task priority", example = "MEDIUM", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = {"LOW", "MEDIUM", "HIGH", "URGENT"})
+    @NotNull(message = "Priority is required")
+    private TaskPriority priority;
+
+    @Schema(description = "Assignee user ID (optional)", example = "1", nullable = true)
+    private Long assigneeId;
+
+    @Schema(description = "Task due date (optional)", example = "2031-01-15T17:00:00", nullable = true)
+    private LocalDateTime dueDate;
+
+    @Schema(description = "Tag IDs to associate with task (optional)", example = "[1, 2, 3]", nullable = true)
+    private Set<Long> tagIds;
 }

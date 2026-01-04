@@ -1,0 +1,32 @@
+{
+  "properties": [
+    {
+      "name": "app.notification.type",
+      "type": "java.lang.String",
+      "defaultValue": "console",
+      "options": [
+        "console",
+        "email"
+      ],
+      "description": "NotificationService implementations type."
+    },
+    {
+      "name": "app.storage.provider",
+      "type": "java.lang.String",
+      "defaultValue": "local",
+      "description": "Storage provider to use for file attachments. Valid values: 'local' for local filesystem storage, 'minio' for MinIO object storage."
+    },
+    {
+      "name": "app.storage.max-file-size",
+      "type": "java.lang.String",
+      "defaultValue": "10485760",
+      "description": "Storage provider maximum file size in bytes."
+    },
+    {
+      "name": "app.storage.allowed-extensions",
+      "type": "java.lang.String",
+      "defaultValue": "jpg,jpeg,png,webp,pdf,doc,docx,xls,xlsx,txt,csv,zip",
+      "description": "File extensions allowed for uploads. Comma-separated list of file extensions without dots, e.g. 'jpg,jpeg,png,webp,pdf,doc,docx,xls,xlsx,txt,csv,zip'."
+    }
+  ]
+}

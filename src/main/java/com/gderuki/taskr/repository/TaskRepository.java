@@ -4,14 +4,17 @@ import com.gderuki.taskr.entity.Task;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TaskRepository extends JpaRepository<Task, Long> {
+public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificationExecutor<Task> {
 
     /**
      * Find all non-deleted tasks with pagination and sorting
@@ -30,4 +33,28 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
      */
     @Query("SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END FROM Task t WHERE t.id = :id AND t.deletedAt IS NULL")
     boolean existsByIdAndNotDeleted(@Param("id") Long id);
+
+    /**
+     * Find all non-deleted tasks with due dates between start and end time
+     */
+    @Query("SELECT t FROM Task t WHERE t.deletedAt IS NULL AND t.dueDate BETWEEN :startTime AND :endTime ORDER BY t.dueDate ASC")
+    List<Task> findTasksWithDueDateBetween(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
+
+    /**
+     * Find all overdue non-deleted tasks (due date is in the past and status is not DONE)
+     */
+    @Query("SELECT t FROM Task t WHERE t.deletedAt IS NULL AND t.dueDate < :now AND t.status <> 'DONE' ORDER BY t.dueDate ASC")
+    List<Task> findOverdueTasks(@Param("now") LocalDateTime now);
+
+    /**
+     * Find all non-deleted tasks that have a specific tag
+     */
+    @Query("SELECT DISTINCT t FROM Task t JOIN t.tags tag WHERE tag.id = :tagId AND t.deletedAt IS NULL")
+    List<Task> findByTagId(@Param("tagId") Long tagId);
+
+    /**
+     * Find all non-deleted tasks that have any of the specified tag IDs
+     */
+    @Query("SELECT DISTINCT t FROM Task t JOIN t.tags tag WHERE tag.id IN :tagIds AND t.deletedAt IS NULL")
+    List<Task> findByTagIdIn(@Param("tagIds") List<Long> tagIds);
 }

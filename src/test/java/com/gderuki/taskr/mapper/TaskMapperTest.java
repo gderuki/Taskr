@@ -4,14 +4,24 @@ import com.gderuki.taskr.dto.TaskRequestDTO;
 import com.gderuki.taskr.dto.TaskResponseDTO;
 import com.gderuki.taskr.entity.Task;
 import com.gderuki.taskr.entity.TaskStatus;
+import com.gderuki.taskr.entity.User;
+import com.gderuki.taskr.repository.UserRepository;
 import org.junit.jupiter.api.Test;
-import org.mapstruct.factory.Mappers;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SpringBootTest
+@ActiveProfiles("test")
 class TaskMapperTest {
 
-    private final TaskMapper mapper = Mappers.getMapper(TaskMapper.class);
+    @Autowired
+    private TaskMapper mapper;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Test
     void toEntity_ShouldMapCorrectly() {
@@ -43,6 +53,37 @@ class TaskMapperTest {
         assertThat(dto.getTitle()).isEqualTo(entity.getTitle());
         assertThat(dto.getDescription()).isEqualTo(entity.getDescription());
         assertThat(dto.getStatus()).isEqualTo(entity.getStatus());
+    }
+
+    @Test
+    void toDto_WithAuditFields_ShouldMapUsernames() {
+        userRepository.deleteAll();
+        User creator = userRepository.save(User.builder()
+                .username("creator")
+                .email("creator@test.com")
+                .password("password")
+                .build());
+
+        User modifier = userRepository.save(User.builder()
+                .username("modifier")
+                .email("modifier@test.com")
+                .password("password")
+                .build());
+
+        Task entity = Task.builder()
+                .id(1L)
+                .title("Title")
+                .status(TaskStatus.TODO)
+                .createdBy(creator.getId())
+                .modifiedBy(modifier.getId())
+                .build();
+
+        TaskResponseDTO dto = mapper.toDto(entity);
+
+        assertThat(dto.getCreatedById()).isEqualTo(creator.getId());
+        assertThat(dto.getCreatedByUsername()).isEqualTo("creator");
+        assertThat(dto.getModifiedById()).isEqualTo(modifier.getId());
+        assertThat(dto.getModifiedByUsername()).isEqualTo("modifier");
     }
 
     @Test

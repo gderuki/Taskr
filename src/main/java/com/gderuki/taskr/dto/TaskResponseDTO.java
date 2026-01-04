@@ -1,5 +1,6 @@
 package com.gderuki.taskr.dto;
 
+import com.gderuki.taskr.entity.TaskPriority;
 import com.gderuki.taskr.entity.TaskStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -28,9 +30,42 @@ public class TaskResponseDTO {
     @Schema(description = "Task status", example = "TODO")
     private TaskStatus status;
 
+    @Schema(description = "Task priority", example = "MEDIUM")
+    private TaskPriority priority;
+
     @Schema(description = "Task creation timestamp", example = "2026-01-03T10:15:30")
     private LocalDateTime createdAt;
 
     @Schema(description = "Task last update timestamp", example = "2026-01-03T10:15:30")
     private LocalDateTime updatedAt;
+
+    @Schema(description = "Assigned user ID", example = "1", nullable = true)
+    private Long assigneeId;
+
+    @Schema(description = "Assigned user username", example = "john.doe", nullable = true)
+    private String assigneeUsername;
+
+    @Schema(description = "Task due date", example = "2031-01-15T17:00:00", nullable = true)
+    private LocalDateTime dueDate;
+
+    @Schema(description = "Tags associated with task", nullable = true)
+    private Set<TagDTO> tags;
+
+    @Schema(description = "User ID who created the task", example = "1", nullable = true)
+    private Long createdById;
+
+    @Schema(description = "Username who created the task", example = "john.doe", nullable = true)
+    private String createdByUsername;
+
+    @Schema(description = "User ID who last modified the task", example = "2", nullable = true)
+    private Long modifiedById;
+
+    @Schema(description = "Username who last modified the task", example = "jane.smith", nullable = true)
+    private String modifiedByUsername;
+
+    @Schema(description = "User ID who deleted the task", example = "1", nullable = true)
+    private Long deletedById;
+
+    @Schema(description = "Username who deleted the task", example = "john.doe", nullable = true)
+    private String deletedByUsername;
 }

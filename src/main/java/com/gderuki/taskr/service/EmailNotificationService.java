@@ -15,7 +15,7 @@ import java.time.temporal.ChronoUnit;
         havingValue = "email"
 )
 @Slf4j
-public class EmailNotificationService implements NotificationServiceInterface {
+public class EmailNotificationService implements NotificationService {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 

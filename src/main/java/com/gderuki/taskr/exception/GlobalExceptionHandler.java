@@ -106,6 +106,46 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle AttachmentNotFoundException (404)
+     */
+    @ExceptionHandler(AttachmentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAttachmentNotFoundException(
+            AttachmentNotFoundException ex, HttpServletRequest request) {
+
+        log.error("Attachment not found: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    /**
+     * Handle FileStorageException (500)
+     */
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<ErrorResponse> handleFileStorageException(
+            FileStorageException ex, HttpServletRequest request) {
+
+        log.error("File storage error: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "File Storage Error",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    /**
      * Handle authentication errors (401)
      */
     @ExceptionHandler(AuthenticationException.class)

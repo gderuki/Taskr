@@ -20,14 +20,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class NotificationServiceTest {
 
-    private NotificationService notificationService;
+    private ConsoleNotificationService notificationService;
     private ListAppender<ILoggingEvent> listAppender;
     private Logger logger;
 
     @BeforeEach
     void setUp() {
-        notificationService = new NotificationService();
-        logger = (Logger) LoggerFactory.getLogger(NotificationService.class); // capture log messages
+        notificationService = new ConsoleNotificationService();
+        logger = (Logger) LoggerFactory.getLogger(ConsoleNotificationService.class); // capture log messages
         listAppender = new ListAppender<>();
         listAppender.start();
         logger.addAppender(listAppender);

@@ -36,6 +36,7 @@
         <commons-compress.version>1.28.0</commons-compress.version>
         <commons-lang3-vuln-fix.version>3.20.0</commons-lang3-vuln-fix.version>
         <springdoc.version>2.7.0</springdoc.version>
+        <minio.version>8.6.0</minio.version>
     </properties>
 
     <dependencyManagement>
@@ -176,6 +177,16 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>${minio.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.12.0</version>
         </dependency>
     </dependencies>
 

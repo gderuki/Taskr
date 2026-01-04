@@ -7,7 +7,7 @@
  * Available implementations:
  *
  * <ul>
- *   <li><b>NotificationService</b> - Console/logging (default)</li>
+ *   <li><b>ConsoleNotificationService</b> - Console/logging (default)</li>
  *   <li><b>EmailNotificationService</b> - Email notifications</li>
  * </ul>
  *
@@ -52,7 +52,7 @@
  * <pre>{@code
  * @Service
  * @ConditionalOnProperty(name = "app.notification.type", havingValue = "slack")
- * public class SlackNotificationService implements NotificationServiceInterface {
+ * public class SlackNotificationService implements NotificationService {
  *     @Override
  *     public void sendDueDateNotification(Task task, long hoursUntilDue) {
  *         // Send to Slack channel

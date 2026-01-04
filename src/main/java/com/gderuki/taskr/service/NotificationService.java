@@ -1,59 +1,31 @@
 package com.gderuki.taskr.service;
 
 import com.gderuki.taskr.entity.Task;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
 
-import java.time.format.DateTimeFormatter;
+/**
+ * Interface for handling task notifications
+ * <p>
+ * Implementations can send notifications via different channels:
+ * - Console/Logging (default)
+ * - Email
+ * - SMS
+ * - Push notifications
+ * - Multiple channels (composite)
+ */
+public interface NotificationService {
 
-@Service
-@ConditionalOnProperty(
-        name = "app.notification.type",
-        havingValue = "console",
-        matchIfMissing = true
-)
-@Slf4j
-public class NotificationService implements NotificationServiceInterface {
+    /**
+     * Send notification for a task that is due soon
+     *
+     * @param task The task that is due soon
+     * @param hoursUntilDue Number of hours until the task is due
+     */
+    void sendDueDateNotification(Task task, long hoursUntilDue);
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-    @Override
-    public void sendDueDateNotification(Task task, long hoursUntilDue) {
-        String assigneeName = task.getAssignee() != null
-                ? task.getAssignee().getUsername()
-                : "Unassigned";
-
-        String dueDate = task.getDueDate() != null
-                ? task.getDueDate().format(FORMATTER)
-                : "N/A";
-
-        log.warn("[!] TASK DUE SOON: '{}' (ID: {}) is due in {} hours at {}. Assigned to: {}",
-                task.getTitle(),
-                task.getId(),
-                hoursUntilDue,
-                dueDate,
-                assigneeName);
-
-        // TODO: Implement actual notification mechanism
-    }
-
-    @Override
-    public void sendOverdueNotification(Task task) {
-        String assigneeName = task.getAssignee() != null
-                ? task.getAssignee().getUsername()
-                : "Unassigned";
-
-        String dueDate = task.getDueDate() != null
-                ? task.getDueDate().format(FORMATTER)
-                : "N/A";
-
-        log.error("[!!!] TASK OVERDUE: '{}' (ID: {}) was due at {}. Assigned to: {}",
-                task.getTitle(),
-                task.getId(),
-                dueDate,
-                assigneeName);
-
-        // TODO: Implement actual notification mechanism
-    }
+    /**
+     * Send a notification for a task that is overdue
+     *
+     * @param task The overdue task
+     */
+    void sendOverdueNotification(Task task);
 }

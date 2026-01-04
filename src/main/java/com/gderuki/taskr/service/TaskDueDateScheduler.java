@@ -22,7 +22,7 @@ import java.util.List;
 public class TaskDueDateScheduler {
 
     private final TaskRepository taskRepository;
-    private final NotificationServiceInterface notificationService;
+    private final NotificationService notificationService;
 
     @PostConstruct
     public void init() {

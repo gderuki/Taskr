@@ -26,7 +26,7 @@ class TaskDueDateSchedulerTest {
     private TaskRepository taskRepository;
 
     @Mock
-    private NotificationServiceInterface notificationService;
+    private NotificationService notificationService;
 
     @InjectMocks
     private TaskDueDateScheduler scheduler;

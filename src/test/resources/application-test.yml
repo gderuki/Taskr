@@ -17,3 +17,12 @@ jwt:
   secret: testsecrettestsecrettestsecrettestsecrettestsecrettestsecrettestsecret
   expiration: 3_600_000
   refresh-expiration: 86400000
+
+app:
+  storage:
+    provider: ${STORAGE_PROVIDER:local}
+    minio:
+      endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+      access-key: ${MINIO_ACCESS_KEY:minioadmin}
+      secret-key: ${MINIO_SECRET_KEY:minioadmin}
+      bucket-name: ${MINIO_BUCKET_NAME:taskr-test-attachments}

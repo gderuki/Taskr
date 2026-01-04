@@ -3,6 +3,7 @@ package com.gderuki.taskr.service;
 import com.gderuki.taskr.dto.TaskRequestDTO;
 import com.gderuki.taskr.dto.TaskResponseDTO;
 import com.gderuki.taskr.entity.Task;
+import com.gderuki.taskr.entity.TaskPriority;
 import com.gderuki.taskr.entity.TaskStatus;
 import com.gderuki.taskr.entity.User;
 import com.gderuki.taskr.exception.TaskNotFoundException;
@@ -62,12 +63,14 @@ public class TaskServiceTest {
                 .title("Test Task")
                 .description("Test Description")
                 .status(TaskStatus.TODO)
+                .priority(TaskPriority.MEDIUM)
                 .build();
 
         taskRequestDTO = TaskRequestDTO.builder()
                 .title("Test Task")
                 .description("Test Description")
                 .status(TaskStatus.TODO)
+                .priority(TaskPriority.MEDIUM)
                 .build();
 
         taskResponseDTO = TaskResponseDTO.builder()
@@ -75,6 +78,7 @@ public class TaskServiceTest {
                 .title("Test Task")
                 .description("Test Description")
                 .status(TaskStatus.TODO)
+                .priority(TaskPriority.MEDIUM)
                 .build();
     }
 
@@ -165,6 +169,7 @@ public class TaskServiceTest {
                 .title("Test Task")
                 .description("Test Description")
                 .status(TaskStatus.TODO)
+                .priority(TaskPriority.MEDIUM)
                 .assigneeId(1L)
                 .build();
 
@@ -186,6 +191,7 @@ public class TaskServiceTest {
                 .title("Test Task")
                 .description("Test Description")
                 .status(TaskStatus.TODO)
+                .priority(TaskPriority.MEDIUM)
                 .assigneeId(999L)
                 .build();
 

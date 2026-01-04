@@ -1,5 +1,6 @@
 package com.gderuki.taskr.dto;
 
+import com.gderuki.taskr.entity.TaskPriority;
 import com.gderuki.taskr.entity.TaskStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,9 @@ public class TaskResponseDTO {
 
     @Schema(description = "Task status", example = "TODO")
     private TaskStatus status;
+
+    @Schema(description = "Task priority", example = "MEDIUM")
+    private TaskPriority priority;
 
     @Schema(description = "Task creation timestamp", example = "2026-01-03T10:15:30")
     private LocalDateTime createdAt;

@@ -2,6 +2,7 @@ package com.gderuki.taskr.repository;
 
 import com.gderuki.taskr.base.WithTestContainer;
 import com.gderuki.taskr.entity.Task;
+import com.gderuki.taskr.entity.TaskPriority;
 import com.gderuki.taskr.entity.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -41,11 +42,13 @@ class TaskRepositoryTest extends WithTestContainer {
             Task activeTask = Task.builder()
                     .title("Active Task")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .build();
 
             Task deletedTask = Task.builder()
                     .title("Deleted Task")
                     .status(TaskStatus.DONE)
+                    .priority(TaskPriority.LOW)
                     .deletedAt(LocalDateTime.now())
                     .build();
 
@@ -64,6 +67,7 @@ class TaskRepositoryTest extends WithTestContainer {
                 Task task = Task.builder()
                         .title("Task " + i)
                         .status(TaskStatus.TODO)
+                        .priority(TaskPriority.MEDIUM)
                         .build();
                 taskRepository.save(task);
             }
@@ -97,14 +101,17 @@ class TaskRepositoryTest extends WithTestContainer {
             Task taskB = Task.builder()
                     .title("B Task")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .build();
             Task taskA = Task.builder()
                     .title("A Task")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .build();
             Task taskC = Task.builder()
                     .title("C Task")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .build();
 
             taskRepository.save(taskB);
@@ -133,14 +140,17 @@ class TaskRepositoryTest extends WithTestContainer {
             Task todoTask = Task.builder()
                     .title("Todo Task")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .build();
             Task inProgressTask = Task.builder()
                     .title("In Progress Task")
                     .status(TaskStatus.IN_PROGRESS)
+                    .priority(TaskPriority.HIGH)
                     .build();
             Task doneTask = Task.builder()
                     .title("Done Task")
                     .status(TaskStatus.DONE)
+                    .priority(TaskPriority.LOW)
                     .build();
 
             taskRepository.save(doneTask);
@@ -162,14 +172,17 @@ class TaskRepositoryTest extends WithTestContainer {
             Task task1 = Task.builder()
                     .title("A Task")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .build();
             Task task2 = Task.builder()
                     .title("B Task")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .build();
             Task task3 = Task.builder()
                     .title("C Task")
                     .status(TaskStatus.IN_PROGRESS)
+                    .priority(TaskPriority.MEDIUM)
                     .build();
 
             taskRepository.save(task2);
@@ -195,6 +208,7 @@ class TaskRepositoryTest extends WithTestContainer {
                 Task task = Task.builder()
                         .title("Task " + i)
                         .status(TaskStatus.TODO)
+                        .priority(TaskPriority.MEDIUM)
                         .deletedAt(i % 2 == 0 ? LocalDateTime.now() : null)
                         .build();
                 taskRepository.save(task);
@@ -214,6 +228,7 @@ class TaskRepositoryTest extends WithTestContainer {
             Task task = Task.builder()
                     .title("Task")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .build();
             Task saved = taskRepository.save(task);
 
@@ -227,6 +242,7 @@ class TaskRepositoryTest extends WithTestContainer {
             Task task = Task.builder()
                     .title("Deleted Task")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .deletedAt(LocalDateTime.now())
                     .build();
             Task saved = taskRepository.save(task);
@@ -250,10 +266,12 @@ class TaskRepositoryTest extends WithTestContainer {
             Task activeTask = Task.builder()
                     .title("Active Task")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .build();
             Task deletedTask = Task.builder()
                     .title("Deleted Task")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .deletedAt(LocalDateTime.now())
                     .build();
 

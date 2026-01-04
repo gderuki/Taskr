@@ -1,5 +1,6 @@
 package com.gderuki.taskr.dto;
 
+import com.gderuki.taskr.entity.TaskPriority;
 import com.gderuki.taskr.entity.TaskStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -29,6 +30,10 @@ public class TaskRequestDTO {
     @Schema(description = "Task status", example = "TODO", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = {"TODO", "IN_PROGRESS", "DONE"})
     @NotNull(message = "Status is required")
     private TaskStatus status;
+
+    @Schema(description = "Task priority", example = "MEDIUM", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = {"LOW", "MEDIUM", "HIGH", "URGENT"})
+    @NotNull(message = "Priority is required")
+    private TaskPriority priority;
 
     @Schema(description = "Assignee user ID (optional)", example = "1", nullable = true)
     private Long assigneeId;

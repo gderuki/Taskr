@@ -5,6 +5,7 @@ import com.gderuki.taskr.base.WithTestContainer;
 import com.gderuki.taskr.config.ApiConstants;
 import com.gderuki.taskr.dto.TaskRequestDTO;
 import com.gderuki.taskr.entity.Task;
+import com.gderuki.taskr.entity.TaskPriority;
 import com.gderuki.taskr.entity.TaskStatus;
 import com.gderuki.taskr.entity.User;
 import com.gderuki.taskr.repository.TaskRepository;
@@ -71,6 +72,7 @@ class TaskControllerIntegrationTest extends WithTestContainer {
                 .title("Test Task")
                 .description("Test Description")
                 .status(TaskStatus.TODO)
+                .priority(TaskPriority.MEDIUM)
                 .build();
         taskRepository.save(testTask);
     }
@@ -86,6 +88,7 @@ class TaskControllerIntegrationTest extends WithTestContainer {
                     .title("New Task")
                     .description("New Description")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.HIGH)
                     .build();
 
             mockMvc.perform(post(ApiConstants.Tasks.BASE)
@@ -103,6 +106,7 @@ class TaskControllerIntegrationTest extends WithTestContainer {
             TaskRequestDTO request = TaskRequestDTO.builder()
                     .title("")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .build();
 
             mockMvc.perform(post(ApiConstants.Tasks.BASE)
@@ -131,6 +135,7 @@ class TaskControllerIntegrationTest extends WithTestContainer {
             TaskRequestDTO request = TaskRequestDTO.builder()
                     .title("Task")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .build();
 
             mockMvc.perform(post(ApiConstants.Tasks.BASE)
@@ -188,6 +193,7 @@ class TaskControllerIntegrationTest extends WithTestContainer {
                     .title("Updated Title")
                     .description("Updated Description")
                     .status(TaskStatus.IN_PROGRESS)
+                    .priority(TaskPriority.URGENT)
                     .build();
 
             mockMvc.perform(put(ApiConstants.Tasks.BASE + "/" + testTask.getId())
@@ -206,6 +212,7 @@ class TaskControllerIntegrationTest extends WithTestContainer {
             TaskRequestDTO request = TaskRequestDTO.builder()
                     .title("Updated")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .build();
 
             mockMvc.perform(put(ApiConstants.Tasks.BASE + "/999999")
@@ -249,6 +256,7 @@ class TaskControllerIntegrationTest extends WithTestContainer {
                 Task task = Task.builder()
                         .title("Task " + i)
                         .status(TaskStatus.TODO)
+                        .priority(TaskPriority.LOW)
                         .build();
                 taskRepository.save(task);
             }
@@ -269,8 +277,8 @@ class TaskControllerIntegrationTest extends WithTestContainer {
         @Test
         @WithMockUser
         void withSorting_ShouldReturnSortedTasks() throws Exception {
-            Task taskA = Task.builder().title("A Task").status(TaskStatus.TODO).build();
-            Task taskZ = Task.builder().title("Z Task").status(TaskStatus.TODO).build();
+            Task taskA = Task.builder().title("A Task").status(TaskStatus.TODO).priority(TaskPriority.MEDIUM).build();
+            Task taskZ = Task.builder().title("Z Task").status(TaskStatus.TODO).priority(TaskPriority.MEDIUM).build();
             taskRepository.save(taskZ);
             taskRepository.save(taskA);
 
@@ -316,6 +324,7 @@ class TaskControllerIntegrationTest extends WithTestContainer {
             TaskRequestDTO request = TaskRequestDTO.builder()
                     .title("Updated")
                     .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
                     .build();
 
             mockMvc.perform(put(ApiConstants.Tasks.BASE + "/" + testTask.getId())

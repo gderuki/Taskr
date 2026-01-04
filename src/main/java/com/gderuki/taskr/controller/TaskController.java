@@ -50,6 +50,7 @@ public class TaskController {
                                               "title": "Complete project documentation",
                                               "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
                                               "status": "TODO",
+                                              "priority": "MEDIUM",
                                               "createdAt": "2026-01-03T10:15:30",
                                               "updatedAt": "2026-01-03T10:15:30"
                                             }
@@ -81,7 +82,8 @@ public class TaskController {
                                             {
                                               "title": "Complete project documentation",
                                               "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
-                                              "status": "TODO"
+                                              "status": "TODO",
+                                              "priority": "MEDIUM"
                                             }
                                             """
                             )
@@ -111,6 +113,7 @@ public class TaskController {
                                                   "title": "Complete project documentation",
                                                   "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
                                                   "status": "TODO",
+                                                  "priority": "MEDIUM",
                                                   "createdAt": "2026-01-03T10:15:30",
                                                   "updatedAt": "2026-01-03T10:15:30"
                                                 },
@@ -119,6 +122,7 @@ public class TaskController {
                                                   "title": "Fix authentication bug",
                                                   "description": "Resolve JWT token refresh issue",
                                                   "status": "IN_PROGRESS",
+                                                  "priority": "HIGH",
                                                   "createdAt": "2026-01-03T09:00:00",
                                                   "updatedAt": "2026-01-03T09:30:00"
                                                 }
@@ -175,6 +179,7 @@ public class TaskController {
                                               "title": "Complete project documentation",
                                               "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
                                               "status": "TODO",
+                                              "priority": "MEDIUM",
                                               "createdAt": "2026-01-03T10:15:30",
                                               "updatedAt": "2026-01-03T10:15:30"
                                             }
@@ -219,6 +224,7 @@ public class TaskController {
                                               "title": "Complete project documentation",
                                               "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
                                               "status": "IN_PROGRESS",
+                                              "priority": "MEDIUM",
                                               "createdAt": "2026-01-03T10:15:30",
                                               "updatedAt": "2026-01-03T11:20:00"
                                             }
@@ -257,7 +263,8 @@ public class TaskController {
                                             {
                                               "title": "Complete project documentation",
                                               "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
-                                              "status": "IN_PROGRESS"
+                                              "status": "IN_PROGRESS",
+                                              "priority": "MEDIUM"
                                             }
                                             """
                             )

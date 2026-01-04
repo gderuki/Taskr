@@ -32,6 +32,10 @@ public class Task {
     @Column(nullable = false, length = 20)
     private TaskStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private TaskPriority priority;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -47,6 +51,7 @@ public class Task {
     @JoinColumn(name = "assignee_id")
     private User assignee;
 
+    @SuppressWarnings("unused")
     public boolean isDeleted() {
         return deletedAt != null;
     }

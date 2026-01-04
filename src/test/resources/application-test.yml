@@ -15,5 +15,5 @@ spring:
 
 jwt:
   secret: testsecrettestsecrettestsecrettestsecrettestsecrettestsecrettestsecret
-  expiration: 3600000
+  expiration: 3_600_000
   refresh-expiration: 86400000

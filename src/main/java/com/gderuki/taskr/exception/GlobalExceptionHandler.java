@@ -1,6 +1,8 @@
 package com.gderuki.taskr.exception;
 
+import com.gderuki.taskr.exception.json.JsonErrorParserServiceInterface;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +19,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 @Slf4j
 public class GlobalExceptionHandler {
+
+    private final JsonErrorParserServiceInterface jsonErrorParserService;
 
     /**
      * Handle TaskNotFoundException (404)
@@ -159,11 +164,14 @@ public class GlobalExceptionHandler {
         log.warn("Message not readable for request to {}: {}",
                 request.getRequestURI(), ex.getMessage());
 
+        String causeMessage = ex.getCause() != null ? ex.getCause().getMessage() : null;
+        String detailedMessage = jsonErrorParserService.parseError(causeMessage);
+
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
                 "Bad Request",
-                "Required request body is missing or malformed",
+                detailedMessage,
                 request.getRequestURI()
         );
 

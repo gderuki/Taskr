@@ -43,4 +43,7 @@ public class TaskResponseDTO {
 
     @Schema(description = "Assigned user username", example = "john.doe", nullable = true)
     private String assigneeUsername;
+
+    @Schema(description = "Task due date", example = "2031-01-15T17:00:00", nullable = true)
+    private LocalDateTime dueDate;
 }

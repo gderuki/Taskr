@@ -33,7 +33,7 @@ class RefreshTokenServiceTest {
 
     @BeforeEach
     void setUp() {
-        Long refreshTokenDurationMs = 3600000L;
+        Long refreshTokenDurationMs = 3_600_000L;
         ReflectionTestUtils.setField(refreshTokenService, "refreshTokenDurationMs", refreshTokenDurationMs);
         user = User.builder().id(1L).username("testuser").build();
     }

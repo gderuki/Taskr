@@ -51,6 +51,9 @@ public class Task {
     @JoinColumn(name = "assignee_id")
     private User assignee;
 
+    @Column(name = "due_date")
+    private LocalDateTime dueDate;
+
     @SuppressWarnings("unused")
     public boolean isDeleted() {
         return deletedAt != null;

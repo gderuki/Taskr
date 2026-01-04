@@ -52,7 +52,8 @@ public class TaskController {
                                               "status": "TODO",
                                               "priority": "MEDIUM",
                                               "createdAt": "2026-01-03T10:15:30",
-                                              "updatedAt": "2026-01-03T10:15:30"
+                                              "updatedAt": "2026-01-03T10:15:30",
+                                              "dueDate": "2031-01-15T17:00:00"
                                             }
                                             """
                             )
@@ -83,7 +84,8 @@ public class TaskController {
                                               "title": "Complete project documentation",
                                               "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
                                               "status": "TODO",
-                                              "priority": "MEDIUM"
+                                              "priority": "MEDIUM",
+                                              "dueDate": "2031-01-15T17:00:00"
                                             }
                                             """
                             )
@@ -115,7 +117,8 @@ public class TaskController {
                                                   "status": "TODO",
                                                   "priority": "MEDIUM",
                                                   "createdAt": "2026-01-03T10:15:30",
-                                                  "updatedAt": "2026-01-03T10:15:30"
+                                                  "updatedAt": "2026-01-03T10:15:30",
+                                                  "dueDate": "2031-01-15T17:00:00"
                                                 },
                                                 {
                                                   "id": 2,
@@ -124,7 +127,8 @@ public class TaskController {
                                                   "status": "IN_PROGRESS",
                                                   "priority": "HIGH",
                                                   "createdAt": "2026-01-03T09:00:00",
-                                                  "updatedAt": "2026-01-03T09:30:00"
+                                                  "updatedAt": "2026-01-03T09:30:00",
+                                                  "dueDate": "2026-01-05T12:00:00"
                                                 }
                                               ],
                                               "pageable": {
@@ -181,7 +185,8 @@ public class TaskController {
                                               "status": "TODO",
                                               "priority": "MEDIUM",
                                               "createdAt": "2026-01-03T10:15:30",
-                                              "updatedAt": "2026-01-03T10:15:30"
+                                              "updatedAt": "2026-01-03T10:15:30",
+                                              "dueDate": "2031-01-15T17:00:00"
                                             }
                                             """
                             )
@@ -226,7 +231,8 @@ public class TaskController {
                                               "status": "IN_PROGRESS",
                                               "priority": "MEDIUM",
                                               "createdAt": "2026-01-03T10:15:30",
-                                              "updatedAt": "2026-01-03T11:20:00"
+                                              "updatedAt": "2026-01-03T11:20:00",
+                                              "dueDate": "2031-01-15T17:00:00"
                                             }
                                             """
                             )
@@ -264,7 +270,8 @@ public class TaskController {
                                               "title": "Complete project documentation",
                                               "description": "Write comprehensive API documentation using SpringDoc OpenAPI",
                                               "status": "IN_PROGRESS",
-                                              "priority": "MEDIUM"
+                                              "priority": "MEDIUM",
+                                              "dueDate": "2031-01-15T17:00:00"
                                             }
                                             """
                             )

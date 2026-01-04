@@ -85,6 +85,8 @@ springdoc:
     doc-expansion: none
 
 app:
+  notification:
+    type: ${NOTIFICATION_TYPE:console}
   cors:
     allowed-origins:
       - http://localhost:3000

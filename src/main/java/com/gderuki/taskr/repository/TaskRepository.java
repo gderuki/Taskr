@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -30,4 +32,16 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
      */
     @Query("SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END FROM Task t WHERE t.id = :id AND t.deletedAt IS NULL")
     boolean existsByIdAndNotDeleted(@Param("id") Long id);
+
+    /**
+     * Find all non-deleted tasks with due dates between start and end time
+     */
+    @Query("SELECT t FROM Task t WHERE t.deletedAt IS NULL AND t.dueDate BETWEEN :startTime AND :endTime ORDER BY t.dueDate ASC")
+    List<Task> findTasksWithDueDateBetween(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
+
+    /**
+     * Find all overdue non-deleted tasks (due date is in the past and status is not DONE)
+     */
+    @Query("SELECT t FROM Task t WHERE t.deletedAt IS NULL AND t.dueDate < :now AND t.status <> 'DONE' ORDER BY t.dueDate ASC")
+    List<Task> findOverdueTasks(@Param("now") LocalDateTime now);
 }

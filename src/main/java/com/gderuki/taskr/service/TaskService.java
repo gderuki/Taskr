@@ -2,17 +2,20 @@ package com.gderuki.taskr.service;
 
 import com.gderuki.taskr.dto.TaskRequestDTO;
 import com.gderuki.taskr.dto.TaskResponseDTO;
+import com.gderuki.taskr.dto.TaskSearchCriteria;
 import com.gderuki.taskr.entity.Task;
 import com.gderuki.taskr.entity.User;
 import com.gderuki.taskr.exception.TaskNotFoundException;
 import com.gderuki.taskr.mapper.TaskMapper;
 import com.gderuki.taskr.repository.TaskRepository;
 import com.gderuki.taskr.repository.UserRepository;
+import com.gderuki.taskr.specification.TaskSpecification;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -134,5 +137,17 @@ public class TaskService {
 
         log.info("Task {} unassigned successfully", taskId);
         return taskMapper.toDto(updatedTask);
+    }
+
+    @Transactional(readOnly = true)
+    @Timed(value = "taskr.task.search", description = "Time taken to search tasks")
+    public Page<TaskResponseDTO> searchTasks(TaskSearchCriteria criteria, Pageable pageable) {
+        log.info("Searching tasks with criteria: {}", criteria);
+
+        Specification<Task> specification = TaskSpecification.withCriteria(criteria);
+        Page<Task> tasks = taskRepository.findAll(specification, pageable);
+
+        log.info("Found {} tasks matching search criteria", tasks.getTotalElements());
+        return tasks.map(taskMapper::toDto);
     }
 }

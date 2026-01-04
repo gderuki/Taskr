@@ -29,6 +29,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDateTime;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -331,6 +333,214 @@ class TaskControllerIntegrationTest extends WithTestContainer {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    @DisplayName("Search and Filter Tasks")
+    class SearchAndFilterTasksTests {
+
+        private User testUser;
+
+        @BeforeEach
+        void setUpSearchTestData() {
+            testUser = userRepository.findAll().getFirst();
+
+            Task task1 = Task.builder()
+                    .title("Important Documentation Task")
+                    .description("Write API documentation")
+                    .status(TaskStatus.TODO)
+                    .priority(TaskPriority.HIGH)
+                    .assignee(testUser)
+                    .dueDate(LocalDateTime.now().plusDays(5))
+                    .build();
+            taskRepository.save(task1);
+
+            Task task2 = Task.builder()
+                    .title("Bug Fix Required")
+                    .description("Fix authentication bug")
+                    .status(TaskStatus.IN_PROGRESS)
+                    .priority(TaskPriority.URGENT)
+                    .assignee(testUser)
+                    .dueDate(LocalDateTime.now().plusDays(1))
+                    .build();
+            taskRepository.save(task2);
+
+            Task task3 = Task.builder()
+                    .title("Feature Development")
+                    .description("Implement new feature")
+                    .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
+                    .dueDate(LocalDateTime.now().plusDays(10))
+                    .build();
+            taskRepository.save(task3);
+
+            Task task4 = Task.builder()
+                    .title("Completed Documentation")
+                    .description("Documentation completed")
+                    .status(TaskStatus.DONE)
+                    .priority(TaskPriority.LOW)
+                    .dueDate(LocalDateTime.now().minusDays(2))
+                    .build();
+            taskRepository.save(task4);
+
+            Task task5 = Task.builder()
+                    .title("Overdue Task")
+                    .description("This is overdue")
+                    .status(TaskStatus.TODO)
+                    .priority(TaskPriority.HIGH)
+                    .dueDate(LocalDateTime.now().minusDays(5))
+                    .build();
+            taskRepository.save(task5);
+        }
+
+        @Test
+        @WithMockUser
+        void searchByKeyword_InTitle_ShouldReturnMatchingTasks() throws Exception {
+            mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search")
+                            .param("keyword", "documentation"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content.length()").value(2))
+                    .andExpect(jsonPath("$.content[?(@.title =~ /.*Documentation.*/i)]").exists());
+        }
+
+        @Test
+        @WithMockUser
+        void searchByKeyword_InDescription_ShouldReturnMatchingTasks() throws Exception {
+            mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search")
+                            .param("keyword", "authentication"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content[0].description").value("Fix authentication bug"));
+        }
+
+        @Test
+        @WithMockUser
+        void searchByStatus_ShouldReturnTasksWithStatus() throws Exception {
+            mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search")
+                            .param("status", "TODO"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content[?(@.status == 'TODO')]").isArray());
+        }
+
+        @Test
+        @WithMockUser
+        void searchByPriority_ShouldReturnTasksWithPriority() throws Exception {
+            mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search")
+                            .param("priority", "HIGH"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content[?(@.priority == 'HIGH')]").isArray());
+        }
+
+        @Test
+        @WithMockUser
+        void searchByAssigneeId_ShouldReturnAssignedTasks() throws Exception {
+            mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search")
+                            .param("assigneeId", testUser.getId().toString()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content.length()").value(2));
+        }
+
+        @Test
+        @WithMockUser
+        void searchUnassignedOnly_ShouldReturnUnassignedTasks() throws Exception {
+            mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search")
+                            .param("unassignedOnly", "true"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content[?(@.assigneeId != null)]").isEmpty());
+        }
+
+        @Test
+        @WithMockUser
+        void searchByDueDateRange_ShouldReturnTasksInRange() throws Exception {
+            LocalDateTime from = LocalDateTime.now();
+            LocalDateTime to = LocalDateTime.now().plusDays(7);
+
+            mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search")
+                            .param("dueDateFrom", from.toString())
+                            .param("dueDateTo", to.toString()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content").isArray());
+        }
+
+        @Test
+        @WithMockUser
+        void searchByCreatedDateRange_ShouldReturnTasksInRange() throws Exception {
+            LocalDateTime createdAfter = LocalDateTime.now().minusHours(1);
+            LocalDateTime createdBefore = LocalDateTime.now().plusHours(1);
+
+            mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search")
+                            .param("createdAfter", createdAfter.toString())
+                            .param("createdBefore", createdBefore.toString()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content").isArray());
+        }
+
+        @Test
+        @WithMockUser
+        void searchOverdueOnly_ShouldReturnOverdueTasks() throws Exception {
+            mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search")
+                            .param("overdueOnly", "true"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content[?(@.status == 'DONE')]").isEmpty());
+        }
+
+        @Test
+        @WithMockUser
+        void searchWithMultipleCriteria_ShouldReturnMatchingTasks() throws Exception {
+            mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search")
+                            .param("keyword", "bug")
+                            .param("status", "IN_PROGRESS")
+                            .param("priority", "URGENT")
+                            .param("assigneeId", testUser.getId().toString()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content.length()").value(1))
+                    .andExpect(jsonPath("$.content[0].title").value("Bug Fix Required"));
+        }
+
+        @Test
+        @WithMockUser
+        void searchWithPaginationAndSorting_ShouldReturnPagedSortedResults() throws Exception {
+            mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search")
+                            .param("status", "TODO")
+                            .param("page", "0")
+                            .param("size", "2")
+                            .param("sortBy", "priority")
+                            .param("direction", "DESC"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageable.pageSize").value(2));
+        }
+
+        @Test
+        @WithMockUser
+        void searchWithEmptyCriteria_ShouldReturnAllActiveTasks() throws Exception {
+            mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content.length()").value(6));
+        }
+
+        @Test
+        @WithMockUser
+        void searchExcludesDeletedTasks_EvenWithMatchingCriteria() throws Exception {
+            Task deletedTask = Task.builder()
+                    .title("Deleted Documentation Task")
+                    .description("This should not appear")
+                    .status(TaskStatus.TODO)
+                    .priority(TaskPriority.HIGH)
+                    .deletedAt(LocalDateTime.now())
+                    .build();
+            taskRepository.save(deletedTask);
+
+            mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search")
+                            .param("keyword", "documentation"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content[?(@.title == 'Deleted Documentation Task')]").isEmpty());
+        }
+
+        @Test
+        void searchWhenUnauthenticated_ShouldReturn403() throws Exception {
+            mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search")
+                            .param("keyword", "test"))
+                    .andExpect(status().isForbidden());
         }
     }
 }

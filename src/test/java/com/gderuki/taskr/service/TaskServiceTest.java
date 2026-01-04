@@ -2,6 +2,7 @@ package com.gderuki.taskr.service;
 
 import com.gderuki.taskr.dto.TaskRequestDTO;
 import com.gderuki.taskr.dto.TaskResponseDTO;
+import com.gderuki.taskr.dto.TaskSearchCriteria;
 import com.gderuki.taskr.entity.Task;
 import com.gderuki.taskr.entity.TaskPriority;
 import com.gderuki.taskr.entity.TaskStatus;
@@ -13,6 +14,7 @@ import com.gderuki.taskr.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,13 +22,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -257,5 +261,205 @@ public class TaskServiceTest {
 
         assertThatThrownBy(() -> taskService.unassignTask(1L))
                 .isInstanceOf(TaskNotFoundException.class);
+    }
+
+    @Test
+    void searchTasks_WithKeyword_ShouldReturnMatchingTasks() {
+        TaskSearchCriteria criteria = TaskSearchCriteria.builder()
+                .keyword("test")
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Task> taskPage = new PageImpl<>(List.of(task));
+
+        when(taskRepository.findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable))).thenReturn(taskPage);
+        when(taskMapper.toDto(any(Task.class))).thenReturn(taskResponseDTO);
+
+        Page<TaskResponseDTO> result = taskService.searchTasks(criteria, pageable);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(1);
+        verify(taskRepository).findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable));
+    }
+
+    @Test
+    void searchTasks_WithStatus_ShouldReturnTasksWithStatus() {
+        TaskSearchCriteria criteria = TaskSearchCriteria.builder()
+                .status(TaskStatus.TODO)
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Task> taskPage = new PageImpl<>(List.of(task));
+
+        when(taskRepository.findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable))).thenReturn(taskPage);
+        when(taskMapper.toDto(any(Task.class))).thenReturn(taskResponseDTO);
+
+        Page<TaskResponseDTO> result = taskService.searchTasks(criteria, pageable);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(1);
+        verify(taskRepository).findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable));
+    }
+
+    @Test
+    void searchTasks_WithPriority_ShouldReturnTasksWithPriority() {
+        TaskSearchCriteria criteria = TaskSearchCriteria.builder()
+                .priority(TaskPriority.HIGH)
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Task> taskPage = new PageImpl<>(List.of(task));
+
+        when(taskRepository.findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable))).thenReturn(taskPage);
+        when(taskMapper.toDto(any(Task.class))).thenReturn(taskResponseDTO);
+
+        Page<TaskResponseDTO> result = taskService.searchTasks(criteria, pageable);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(1);
+        verify(taskRepository).findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable));
+    }
+
+    @Test
+    void searchTasks_WithAssigneeId_ShouldReturnAssignedTasks() {
+        task.setAssignee(user);
+        TaskSearchCriteria criteria = TaskSearchCriteria.builder()
+                .assigneeId(1L)
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Task> taskPage = new PageImpl<>(List.of(task));
+
+        when(taskRepository.findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable))).thenReturn(taskPage);
+        when(taskMapper.toDto(any(Task.class))).thenReturn(taskResponseDTO);
+
+        Page<TaskResponseDTO> result = taskService.searchTasks(criteria, pageable);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(1);
+        verify(taskRepository).findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable));
+    }
+
+    @Test
+    void searchTasks_WithUnassignedOnly_ShouldReturnUnassignedTasks() {
+        TaskSearchCriteria criteria = TaskSearchCriteria.builder()
+                .unassignedOnly(true)
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Task> taskPage = new PageImpl<>(List.of(task));
+
+        when(taskRepository.findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable))).thenReturn(taskPage);
+        when(taskMapper.toDto(any(Task.class))).thenReturn(taskResponseDTO);
+
+        Page<TaskResponseDTO> result = taskService.searchTasks(criteria, pageable);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(1);
+        verify(taskRepository).findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable));
+    }
+
+    @Test
+    void searchTasks_WithDueDateRange_ShouldReturnTasksInRange() {
+        LocalDateTime from = LocalDateTime.now();
+        LocalDateTime to = LocalDateTime.now().plusDays(7);
+
+        TaskSearchCriteria criteria = TaskSearchCriteria.builder()
+                .dueDateFrom(from)
+                .dueDateTo(to)
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Task> taskPage = new PageImpl<>(List.of(task));
+
+        when(taskRepository.findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable))).thenReturn(taskPage);
+        when(taskMapper.toDto(any(Task.class))).thenReturn(taskResponseDTO);
+
+        Page<TaskResponseDTO> result = taskService.searchTasks(criteria, pageable);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(1);
+        verify(taskRepository).findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable));
+    }
+
+    @Test
+    void searchTasks_WithCreatedDateRange_ShouldReturnTasksInRange() {
+        LocalDateTime createdAfter = LocalDateTime.now().minusDays(7);
+        LocalDateTime createdBefore = LocalDateTime.now();
+
+        TaskSearchCriteria criteria = TaskSearchCriteria.builder()
+                .createdAfter(createdAfter)
+                .createdBefore(createdBefore)
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Task> taskPage = new PageImpl<>(List.of(task));
+
+        when(taskRepository.findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable))).thenReturn(taskPage);
+        when(taskMapper.toDto(any(Task.class))).thenReturn(taskResponseDTO);
+
+        Page<TaskResponseDTO> result = taskService.searchTasks(criteria, pageable);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(1);
+        verify(taskRepository).findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable));
+    }
+
+    @Test
+    void searchTasks_WithOverdueOnly_ShouldReturnOverdueTasks() {
+        TaskSearchCriteria criteria = TaskSearchCriteria.builder()
+                .overdueOnly(true)
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Task> taskPage = new PageImpl<>(List.of(task));
+
+        when(taskRepository.findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable))).thenReturn(taskPage);
+        when(taskMapper.toDto(any(Task.class))).thenReturn(taskResponseDTO);
+
+        Page<TaskResponseDTO> result = taskService.searchTasks(criteria, pageable);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(1);
+        verify(taskRepository).findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable));
+    }
+
+    @Test
+    void searchTasks_WithMultipleCriteria_ShouldReturnMatchingTasks() {
+        TaskSearchCriteria criteria = TaskSearchCriteria.builder()
+                .keyword("test")
+                .status(TaskStatus.TODO)
+                .priority(TaskPriority.HIGH)
+                .assigneeId(1L)
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Task> taskPage = new PageImpl<>(List.of(task));
+
+        when(taskRepository.findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable))).thenReturn(taskPage);
+        when(taskMapper.toDto(any(Task.class))).thenReturn(taskResponseDTO);
+
+        Page<TaskResponseDTO> result = taskService.searchTasks(criteria, pageable);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(1);
+        verify(taskRepository).findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable));
+    }
+
+    @Test
+    void searchTasks_WithEmptyCriteria_ShouldReturnAllActiveTasks() {
+        TaskSearchCriteria criteria = TaskSearchCriteria.builder().build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Task> taskPage = new PageImpl<>(List.of(task));
+
+        when(taskRepository.findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable))).thenReturn(taskPage);
+        when(taskMapper.toDto(any(Task.class))).thenReturn(taskResponseDTO);
+
+        Page<TaskResponseDTO> result = taskService.searchTasks(criteria, pageable);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(1);
+        verify(taskRepository).findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable));
     }
 }

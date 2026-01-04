@@ -45,4 +45,16 @@ public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificat
      */
     @Query("SELECT t FROM Task t WHERE t.deletedAt IS NULL AND t.dueDate < :now AND t.status <> 'DONE' ORDER BY t.dueDate ASC")
     List<Task> findOverdueTasks(@Param("now") LocalDateTime now);
+
+    /**
+     * Find all non-deleted tasks that have a specific tag
+     */
+    @Query("SELECT DISTINCT t FROM Task t JOIN t.tags tag WHERE tag.id = :tagId AND t.deletedAt IS NULL")
+    List<Task> findByTagId(@Param("tagId") Long tagId);
+
+    /**
+     * Find all non-deleted tasks that have any of the specified tag IDs
+     */
+    @Query("SELECT DISTINCT t FROM Task t JOIN t.tags tag WHERE tag.id IN :tagIds AND t.deletedAt IS NULL")
+    List<Task> findByTagIdIn(@Param("tagIds") List<Long> tagIds);
 }

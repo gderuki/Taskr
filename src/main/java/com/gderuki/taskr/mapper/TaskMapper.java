@@ -5,13 +5,14 @@ import com.gderuki.taskr.dto.TaskResponseDTO;
 import com.gderuki.taskr.entity.Task;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {TagMapper.class})
 public interface TaskMapper {
 
     /**
      * Convert TaskRequestDTO to Task entity
      */
     @Mapping(target = "assignee", ignore = true)
+    @Mapping(target = "tags", ignore = true)
     Task toEntity(TaskRequestDTO taskRequestDTO);
 
     /**
@@ -23,12 +24,13 @@ public interface TaskMapper {
 
     /**
      * Update existing Task entity from TaskRequestDTO
-     * Ignores id, createdAt, updatedAt, deletedAt, assignee fields
+     * Ignores id, createdAt, updatedAt, deletedAt, assignee, tags fields
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "assignee", ignore = true)
+    @Mapping(target = "tags", ignore = true)
     void updateEntityFromDto(TaskRequestDTO taskRequestDTO, @MappingTarget Task task);
 }

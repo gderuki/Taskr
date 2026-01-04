@@ -27,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping(ApiConstants.Tasks.BASE)
@@ -446,6 +447,10 @@ public class TaskController {
             @RequestParam(required = false) Boolean unassignedOnly,
             @Parameter(description = "Include only overdue tasks", example = "false")
             @RequestParam(required = false) Boolean overdueOnly,
+            @Parameter(description = "Filter by tag IDs (tasks must have ALL specified tags)", example = "1,2")
+            @RequestParam(required = false) List<Long> tagIds,
+            @Parameter(description = "Filter by tag IDs (tasks must have ANY of specified tags)", example = "1,2")
+            @RequestParam(required = false) List<Long> anyTagIds,
             @Parameter(description = "Page number (0-indexed)", example = "0")
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Number of items per page", example = "10")
@@ -466,10 +471,80 @@ public class TaskController {
                 .createdBefore(createdBefore)
                 .unassignedOnly(unassignedOnly)
                 .overdueOnly(overdueOnly)
+                .tagIds(tagIds)
+                .anyTagIds(anyTagIds)
                 .build();
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<TaskResponseDTO> tasks = taskService.searchTasks(criteria, pageable);
         return ResponseEntity.ok(tasks);
+    }
+
+    @Operation(
+            summary = "Add tag to task",
+            description = "Adds a tag to a task. Requires authentication."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Tag added successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TaskResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Task or tag not found",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - JWT token missing or invalid",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @PostMapping("/{taskId}/tags/{tagId}")
+    public ResponseEntity<TaskResponseDTO> addTagToTask(
+            @Parameter(description = "Task ID", example = "1", required = true)
+            @PathVariable Long taskId,
+            @Parameter(description = "Tag ID to add", example = "1", required = true)
+            @PathVariable Long tagId) {
+        TaskResponseDTO task = taskService.addTagToTask(taskId, tagId);
+        return ResponseEntity.ok(task);
+    }
+
+    @Operation(
+            summary = "Remove tag from task",
+            description = "Removes a tag from a task. Requires authentication."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Tag removed successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TaskResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Task not found",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - JWT token missing or invalid",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @DeleteMapping("/{taskId}/tags/{tagId}")
+    public ResponseEntity<TaskResponseDTO> removeTagFromTask(
+            @Parameter(description = "Task ID", example = "1", required = true)
+            @PathVariable Long taskId,
+            @Parameter(description = "Tag ID to remove", example = "1", required = true)
+            @PathVariable Long tagId) {
+        TaskResponseDTO task = taskService.removeTagFromTask(taskId, tagId);
+        return ResponseEntity.ok(task);
     }
 }

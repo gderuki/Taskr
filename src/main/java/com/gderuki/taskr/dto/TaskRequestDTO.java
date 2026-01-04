@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -42,4 +43,7 @@ public class TaskRequestDTO {
 
     @Schema(description = "Task due date (optional)", example = "2031-01-15T17:00:00", nullable = true)
     private LocalDateTime dueDate;
+
+    @Schema(description = "Tag IDs to associate with task (optional)", example = "[1, 2, 3]", nullable = true)
+    private Set<Long> tagIds;
 }

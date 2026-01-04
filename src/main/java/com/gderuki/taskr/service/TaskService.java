@@ -3,6 +3,7 @@ package com.gderuki.taskr.service;
 import com.gderuki.taskr.dto.TaskRequestDTO;
 import com.gderuki.taskr.dto.TaskResponseDTO;
 import com.gderuki.taskr.dto.TaskSearchCriteria;
+import com.gderuki.taskr.entity.Tag;
 import com.gderuki.taskr.entity.Task;
 import com.gderuki.taskr.entity.User;
 import com.gderuki.taskr.exception.TaskNotFoundException;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +31,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final TaskMapper taskMapper;
+    private final TagService tagService;
 
     @Transactional
     @Timed(value = "taskr.task.create", description = "Time taken to create a task")
@@ -41,6 +44,11 @@ public class TaskService {
             User assignee = userRepository.findById(taskRequestDTO.getAssigneeId())
                     .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + taskRequestDTO.getAssigneeId()));
             task.setAssignee(assignee);
+        }
+
+        if (taskRequestDTO.getTagIds() != null && !taskRequestDTO.getTagIds().isEmpty()) {
+            Set<Tag> tags = tagService.getTagsByIds(taskRequestDTO.getTagIds());
+            task.setTags(tags);
         }
 
         Task savedTask = taskRepository.save(task);
@@ -84,6 +92,15 @@ public class TaskService {
             User assignee = userRepository.findById(taskRequestDTO.getAssigneeId())
                     .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + taskRequestDTO.getAssigneeId()));
             task.setAssignee(assignee);
+        }
+
+        if (taskRequestDTO.getTagIds() != null) {
+            if (taskRequestDTO.getTagIds().isEmpty()) {
+                task.getTags().clear();
+            } else {
+                Set<Tag> tags = tagService.getTagsByIds(taskRequestDTO.getTagIds());
+                task.setTags(tags);
+            }
         }
 
         Task updatedTask = taskRepository.save(task);
@@ -149,5 +166,39 @@ public class TaskService {
 
         log.info("Found {} tasks matching search criteria", tasks.getTotalElements());
         return tasks.map(taskMapper::toDto);
+    }
+
+    @Transactional
+    @Timed(value = "taskr.task.addTag", description = "Time taken to add a tag to a task")
+    public TaskResponseDTO addTagToTask(Long taskId, Long tagId) {
+        log.info("Adding tag {} to task {}", tagId, taskId);
+
+        Task task = taskRepository.findByIdAndNotDeleted(taskId)
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
+
+        Tag tag = tagService.getTagsByIds(Set.of(tagId)).stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Tag not found with id: " + tagId));
+
+        task.getTags().add(tag);
+        Task updatedTask = taskRepository.save(task);
+
+        log.info("Tag {} added to task {} successfully", tagId, taskId);
+        return taskMapper.toDto(updatedTask);
+    }
+
+    @Transactional
+    @Timed(value = "taskr.task.removeTag", description = "Time taken to remove a tag from a task")
+    public TaskResponseDTO removeTagFromTask(Long taskId, Long tagId) {
+        log.info("Removing tag {} from task {}", tagId, taskId);
+
+        Task task = taskRepository.findByIdAndNotDeleted(taskId)
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
+
+        task.getTags().removeIf(tag -> tag.getId().equals(tagId));
+        Task updatedTask = taskRepository.save(task);
+
+        log.info("Tag {} removed from task {} successfully", tagId, taskId);
+        return taskMapper.toDto(updatedTask);
     }
 }

@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -46,4 +47,10 @@ public class TaskSearchCriteria {
 
     @Schema(description = "Include only overdue tasks (due date in the past and status not DONE)", example = "false")
     private Boolean overdueOnly;
+
+    @Schema(description = "Filter by tag IDs (tasks must have ALL specified tags)", example = "[1, 2]")
+    private List<Long> tagIds;
+
+    @Schema(description = "Filter by tag IDs (tasks must have ANY of specified tags)", example = "[1, 2]")
+    private List<Long> anyTagIds;
 }

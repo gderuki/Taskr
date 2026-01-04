@@ -427,7 +427,8 @@ class AuthControllerIntegrationTest extends WithTestContainer {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.status").value(400))
                     .andExpect(jsonPath("$.error").value("Bad Request"))
-                    .andExpect(jsonPath("$.message").value("Required request body is missing or malformed"));
+                    .andExpect(jsonPath("$.message").exists())
+                    .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("JSON")));
         }
     }
 

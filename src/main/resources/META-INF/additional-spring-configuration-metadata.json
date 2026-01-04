@@ -1,0 +1,11 @@
+{
+  "properties": [
+    {
+      "name": "app.notification.type",
+      "type": "java.lang.String",
+      "defaultValue": "console",
+      "options": ["console", "email"],
+      "description": "NotificationService implementations type."
+    }
+  ]
+}

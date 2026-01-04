@@ -2,15 +2,20 @@ package com.gderuki.taskr.service;
 
 import com.gderuki.taskr.dto.TaskRequestDTO;
 import com.gderuki.taskr.dto.TaskResponseDTO;
+import com.gderuki.taskr.dto.TaskSearchCriteria;
 import com.gderuki.taskr.entity.Task;
+import com.gderuki.taskr.entity.User;
 import com.gderuki.taskr.exception.TaskNotFoundException;
 import com.gderuki.taskr.mapper.TaskMapper;
 import com.gderuki.taskr.repository.TaskRepository;
+import com.gderuki.taskr.repository.UserRepository;
+import com.gderuki.taskr.specification.TaskSpecification;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,26 +27,28 @@ import java.time.LocalDateTime;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
     private final TaskMapper taskMapper;
 
-    /**
-     * Create a new task
-     */
     @Transactional
     @Timed(value = "taskr.task.create", description = "Time taken to create a task")
     public TaskResponseDTO createTask(TaskRequestDTO taskRequestDTO) {
         log.info("Creating new task with title: {}", taskRequestDTO.getTitle());
 
         Task task = taskMapper.toEntity(taskRequestDTO);
+
+        if (taskRequestDTO.getAssigneeId() != null) {
+            User assignee = userRepository.findById(taskRequestDTO.getAssigneeId())
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + taskRequestDTO.getAssigneeId()));
+            task.setAssignee(assignee);
+        }
+
         Task savedTask = taskRepository.save(task);
 
         log.info("Task created successfully with id: {}", savedTask.getId());
         return taskMapper.toDto(savedTask);
     }
 
-    /**
-     * Get all active (non-deleted) tasks with pagination and sorting
-     */
     @Transactional(readOnly = true)
     @Timed(value = "taskr.task.getAll", description = "Time taken to fetch all tasks")
     public Page<TaskResponseDTO> getAllTasks(Pageable pageable) {
@@ -52,9 +59,6 @@ public class TaskService {
         return tasks.map(taskMapper::toDto);
     }
 
-    /**
-     * Get a task by ID
-     */
     @Transactional(readOnly = true)
     @Timed(value = "taskr.task.getById", description = "Time taken to fetch a task by ID")
     public TaskResponseDTO getTaskById(Long id) {
@@ -66,9 +70,6 @@ public class TaskService {
         return taskMapper.toDto(task);
     }
 
-    /**
-     * Update an existing task
-     */
     @Transactional
     @Timed(value = "taskr.task.update", description = "Time taken to update a task")
     public TaskResponseDTO updateTask(Long id, TaskRequestDTO taskRequestDTO) {
@@ -78,15 +79,19 @@ public class TaskService {
                 .orElseThrow(() -> new TaskNotFoundException(id));
 
         taskMapper.updateEntityFromDto(taskRequestDTO, task);
+
+        if (taskRequestDTO.getAssigneeId() != null) {
+            User assignee = userRepository.findById(taskRequestDTO.getAssigneeId())
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + taskRequestDTO.getAssigneeId()));
+            task.setAssignee(assignee);
+        }
+
         Task updatedTask = taskRepository.save(task);
 
         log.info("Task updated successfully with id: {}", id);
         return taskMapper.toDto(updatedTask);
     }
 
-    /**
-     * Soft delete a task (sets deletedAt timestamp)
-     */
     @Transactional
     @Timed(value = "taskr.task.delete", description = "Time taken to delete a task")
     public void deleteTask(Long id) {
@@ -99,5 +104,50 @@ public class TaskService {
         taskRepository.save(task);
 
         log.info("Task soft deleted successfully with id: {}", id);
+    }
+
+    @Transactional
+    @Timed(value = "taskr.task.assign", description = "Time taken to assign a task")
+    public TaskResponseDTO assignTask(Long taskId, Long userId) {
+        log.info("Assigning task {} to user {}", taskId, userId);
+
+        Task task = taskRepository.findByIdAndNotDeleted(taskId)
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
+        task.setAssignee(user);
+        Task updatedTask = taskRepository.save(task);
+
+        log.info("Task {} assigned to user {} successfully", taskId, userId);
+        return taskMapper.toDto(updatedTask);
+    }
+
+    @Transactional
+    @Timed(value = "taskr.task.unassign", description = "Time taken to unassign a task")
+    public TaskResponseDTO unassignTask(Long taskId) {
+        log.info("Unassigning task {}", taskId);
+
+        Task task = taskRepository.findByIdAndNotDeleted(taskId)
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
+
+        task.setAssignee(null);
+        Task updatedTask = taskRepository.save(task);
+
+        log.info("Task {} unassigned successfully", taskId);
+        return taskMapper.toDto(updatedTask);
+    }
+
+    @Transactional(readOnly = true)
+    @Timed(value = "taskr.task.search", description = "Time taken to search tasks")
+    public Page<TaskResponseDTO> searchTasks(TaskSearchCriteria criteria, Pageable pageable) {
+        log.info("Searching tasks with criteria: {}", criteria);
+
+        Specification<Task> specification = TaskSpecification.withCriteria(criteria);
+        Page<Task> tasks = taskRepository.findAll(specification, pageable);
+
+        log.info("Found {} tasks matching search criteria", tasks.getTotalElements());
+        return tasks.map(taskMapper::toDto);
     }
 }

@@ -21,7 +21,7 @@ class JwtUtilTest {
     void setUp() {
         jwtUtil = new JwtUtil();
         ReflectionTestUtils.setField(jwtUtil, "secret", secret);
-        Long expiration = 3600000L;
+        Long expiration = 3_600_000L;
         ReflectionTestUtils.setField(jwtUtil, "expiration", expiration);
         userDetails = new User("testuser", "password", Collections.emptyList());
     }

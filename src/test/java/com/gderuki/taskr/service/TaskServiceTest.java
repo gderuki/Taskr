@@ -462,4 +462,18 @@ public class TaskServiceTest {
         assertThat(result.getContent()).hasSize(1);
         verify(taskRepository).findAll(ArgumentMatchers.<Specification<Task>>any(), eq(pageable));
     }
+
+    @Test
+    void deleteTask_ShouldSetDeletedByUser() {
+        when(taskRepository.findByIdAndNotDeleted(1L)).thenReturn(Optional.of(task));
+        when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> {
+            Task savedTask = invocation.getArgument(0);
+            assertThat(savedTask.getDeletedAt()).isNotNull();
+            return savedTask;
+        });
+
+        taskService.deleteTask(1L);
+
+        verify(taskRepository).save(task);
+    }
 }

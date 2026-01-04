@@ -10,6 +10,7 @@ import com.gderuki.taskr.exception.TaskNotFoundException;
 import com.gderuki.taskr.mapper.TaskMapper;
 import com.gderuki.taskr.repository.TaskRepository;
 import com.gderuki.taskr.repository.UserRepository;
+import com.gderuki.taskr.security.CustomUserDetails;
 import com.gderuki.taskr.specification.TaskSpecification;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +18,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -88,6 +92,8 @@ public class TaskService {
 
         taskMapper.updateEntityFromDto(taskRequestDTO, task);
 
+        getCurrentUserId().ifPresent(task::setModifiedBy);
+
         if (taskRequestDTO.getAssigneeId() != null) {
             User assignee = userRepository.findById(taskRequestDTO.getAssigneeId())
                     .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + taskRequestDTO.getAssigneeId()));
@@ -106,6 +112,7 @@ public class TaskService {
         Task updatedTask = taskRepository.save(task);
 
         log.info("Task updated successfully with id: {}", id);
+        log.debug("Task modifiedBy: {}", updatedTask.getModifiedBy());
         return taskMapper.toDto(updatedTask);
     }
 
@@ -118,9 +125,30 @@ public class TaskService {
                 .orElseThrow(() -> new TaskNotFoundException(id));
 
         task.setDeletedAt(LocalDateTime.now());
+
+        getCurrentUserId().ifPresent(task::setDeletedBy);
+
         taskRepository.save(task);
 
         log.info("Task soft deleted successfully with id: {}", id);
+    }
+
+    private Optional<Long> getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            return java.util.Optional.empty();
+        }
+
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof CustomUserDetails userDetails) {
+            return java.util.Optional.of(userDetails.getId());
+        } else if (principal instanceof User user) {
+            return java.util.Optional.of(user.getId());
+        }
+
+        return java.util.Optional.empty();
     }
 
     @Transactional
@@ -135,6 +163,7 @@ public class TaskService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
 
         task.setAssignee(user);
+        getCurrentUserId().ifPresent(task::setModifiedBy);
         Task updatedTask = taskRepository.save(task);
 
         log.info("Task {} assigned to user {} successfully", taskId, userId);
@@ -150,6 +179,7 @@ public class TaskService {
                 .orElseThrow(() -> new TaskNotFoundException(taskId));
 
         task.setAssignee(null);
+        getCurrentUserId().ifPresent(task::setModifiedBy);
         Task updatedTask = taskRepository.save(task);
 
         log.info("Task {} unassigned successfully", taskId);
@@ -181,6 +211,7 @@ public class TaskService {
                 .orElseThrow(() -> new IllegalArgumentException("Tag not found with id: " + tagId));
 
         task.getTags().add(tag);
+        getCurrentUserId().ifPresent(task::setModifiedBy);
         Task updatedTask = taskRepository.save(task);
 
         log.info("Tag {} added to task {} successfully", tagId, taskId);
@@ -196,6 +227,7 @@ public class TaskService {
                 .orElseThrow(() -> new TaskNotFoundException(taskId));
 
         task.getTags().removeIf(tag -> tag.getId().equals(tagId));
+        getCurrentUserId().ifPresent(task::setModifiedBy);
         Task updatedTask = taskRepository.save(task);
 
         log.info("Tag {} removed from task {} successfully", tagId, taskId);

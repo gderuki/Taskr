@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,6 +19,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tasks")
+@EntityListeners(AuditingEntityListener.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -70,6 +74,17 @@ public class Task {
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Attachment> attachments = new ArrayList<>();
+
+    @CreatedBy
+    @Column(name = "created_by_id")
+    private Long createdBy;
+
+    @LastModifiedBy
+    @Column(name = "modified_by_id")
+    private Long modifiedBy;
+
+    @Column(name = "deleted_by_id")
+    private Long deletedBy;
 
     @SuppressWarnings("unused")
     public boolean isDeleted() {

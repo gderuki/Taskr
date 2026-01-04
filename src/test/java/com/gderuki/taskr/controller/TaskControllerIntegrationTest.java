@@ -10,6 +10,7 @@ import com.gderuki.taskr.entity.TaskStatus;
 import com.gderuki.taskr.entity.User;
 import com.gderuki.taskr.repository.TaskRepository;
 import com.gderuki.taskr.repository.UserRepository;
+import com.gderuki.taskr.security.WithMockCustomUser;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -541,6 +542,25 @@ class TaskControllerIntegrationTest extends WithTestContainer {
             mockMvc.perform(get(ApiConstants.Tasks.BASE + "/search")
                             .param("keyword", "test"))
                     .andExpect(status().isForbidden());
+        }
+    }
+
+    @Nested
+    @DisplayName("Audit Logging Tests")
+    class AuditLoggingTests {
+
+        @Test
+        @WithMockCustomUser()
+        void deleteTask_ShouldSetDeletedBy() throws Exception {
+            Long taskId = testTask.getId();
+
+            mockMvc.perform(delete(ApiConstants.Tasks.BASE + "/" + taskId))
+                    .andExpect(status().isNoContent());
+
+            Task deletedTask = taskRepository.findById(taskId).orElseThrow();
+            assertThat(deletedTask.getDeletedAt()).isNotNull();
+            assertThat(deletedTask.getDeletedBy()).isNotNull();
+            assertThat(deletedTask.getDeletedBy()).isEqualTo(1L);
         }
     }
 }

@@ -50,4 +50,22 @@ public class TaskResponseDTO {
 
     @Schema(description = "Tags associated with task", nullable = true)
     private Set<TagDTO> tags;
+
+    @Schema(description = "User ID who created the task", example = "1", nullable = true)
+    private Long createdById;
+
+    @Schema(description = "Username who created the task", example = "john.doe", nullable = true)
+    private String createdByUsername;
+
+    @Schema(description = "User ID who last modified the task", example = "2", nullable = true)
+    private Long modifiedById;
+
+    @Schema(description = "Username who last modified the task", example = "jane.smith", nullable = true)
+    private String modifiedByUsername;
+
+    @Schema(description = "User ID who deleted the task", example = "1", nullable = true)
+    private Long deletedById;
+
+    @Schema(description = "Username who deleted the task", example = "john.doe", nullable = true)
+    private String deletedByUsername;
 }

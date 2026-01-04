@@ -46,6 +46,26 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle CommentNotFoundException (404)
+     */
+    @ExceptionHandler(CommentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCommentNotFoundException(
+            CommentNotFoundException ex, HttpServletRequest request) {
+
+        log.error("Comment not found: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    /**
      * Handle authentication errors (401)
      */
     @ExceptionHandler(AuthenticationException.class)

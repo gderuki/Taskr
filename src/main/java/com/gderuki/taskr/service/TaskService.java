@@ -27,9 +27,6 @@ public class TaskService {
     private final UserRepository userRepository;
     private final TaskMapper taskMapper;
 
-    /**
-     * Create a new task
-     */
     @Transactional
     @Timed(value = "taskr.task.create", description = "Time taken to create a task")
     public TaskResponseDTO createTask(TaskRequestDTO taskRequestDTO) {
@@ -49,9 +46,6 @@ public class TaskService {
         return taskMapper.toDto(savedTask);
     }
 
-    /**
-     * Get all active (non-deleted) tasks with pagination and sorting
-     */
     @Transactional(readOnly = true)
     @Timed(value = "taskr.task.getAll", description = "Time taken to fetch all tasks")
     public Page<TaskResponseDTO> getAllTasks(Pageable pageable) {
@@ -62,9 +56,6 @@ public class TaskService {
         return tasks.map(taskMapper::toDto);
     }
 
-    /**
-     * Get a task by ID
-     */
     @Transactional(readOnly = true)
     @Timed(value = "taskr.task.getById", description = "Time taken to fetch a task by ID")
     public TaskResponseDTO getTaskById(Long id) {
@@ -76,9 +67,6 @@ public class TaskService {
         return taskMapper.toDto(task);
     }
 
-    /**
-     * Update an existing task
-     */
     @Transactional
     @Timed(value = "taskr.task.update", description = "Time taken to update a task")
     public TaskResponseDTO updateTask(Long id, TaskRequestDTO taskRequestDTO) {
@@ -101,9 +89,6 @@ public class TaskService {
         return taskMapper.toDto(updatedTask);
     }
 
-    /**
-     * Soft delete a task (sets deletedAt timestamp)
-     */
     @Transactional
     @Timed(value = "taskr.task.delete", description = "Time taken to delete a task")
     public void deleteTask(Long id) {
@@ -118,9 +103,6 @@ public class TaskService {
         log.info("Task soft deleted successfully with id: {}", id);
     }
 
-    /**
-     * Assign a task to a user
-     */
     @Transactional
     @Timed(value = "taskr.task.assign", description = "Time taken to assign a task")
     public TaskResponseDTO assignTask(Long taskId, Long userId) {
@@ -139,9 +121,6 @@ public class TaskService {
         return taskMapper.toDto(updatedTask);
     }
 
-    /**
-     * Unassign a task (remove assignee)
-     */
     @Transactional
     @Timed(value = "taskr.task.unassign", description = "Time taken to unassign a task")
     public TaskResponseDTO unassignTask(Long taskId) {

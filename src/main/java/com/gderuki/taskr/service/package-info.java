@@ -72,7 +72,7 @@
  *     type: slack
  * }</pre>
  *
- * @author Taskr Development Team
+ * @author paul gderuki
  * @version 1.0
  */
 package com.gderuki.taskr.service;

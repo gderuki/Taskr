@@ -296,4 +296,70 @@ public class TaskController {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(
+            summary = "Assign a task to a user",
+            description = "Assigns a task to a specific user by user ID. Requires authentication."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Task assigned successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TaskResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Task or user not found",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - JWT token missing or invalid",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @PutMapping("/{taskId}/assign/{userId}")
+    public ResponseEntity<TaskResponseDTO> assignTask(
+            @Parameter(description = "Task ID", example = "1", required = true)
+            @PathVariable Long taskId,
+            @Parameter(description = "User ID to assign", example = "1", required = true)
+            @PathVariable Long userId) {
+        TaskResponseDTO task = taskService.assignTask(taskId, userId);
+        return ResponseEntity.ok(task);
+    }
+
+    @Operation(
+            summary = "Unassign a task",
+            description = "Removes the assignee from a task. Requires authentication."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Task unassigned successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TaskResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Task not found",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - JWT token missing or invalid",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @PutMapping("/{taskId}/unassign")
+    public ResponseEntity<TaskResponseDTO> unassignTask(
+            @Parameter(description = "Task ID", example = "1", required = true)
+            @PathVariable Long taskId) {
+        TaskResponseDTO task = taskService.unassignTask(taskId);
+        return ResponseEntity.ok(task);
+    }
 }

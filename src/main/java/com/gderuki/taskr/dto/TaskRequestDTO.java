@@ -29,4 +29,7 @@ public class TaskRequestDTO {
     @Schema(description = "Task status", example = "TODO", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = {"TODO", "IN_PROGRESS", "DONE"})
     @NotNull(message = "Status is required")
     private TaskStatus status;
+
+    @Schema(description = "Assignee user ID (optional)", example = "1", nullable = true)
+    private Long assigneeId;
 }

@@ -43,6 +43,10 @@ public class Task {
     @Column
     private LocalDateTime deletedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assignee_id")
+    private User assignee;
+
     public boolean isDeleted() {
         return deletedAt != null;
     }

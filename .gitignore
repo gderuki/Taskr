@@ -35,4 +35,5 @@ build/
 .env
 *.log
 
-uploads/
+uploads
+backups
